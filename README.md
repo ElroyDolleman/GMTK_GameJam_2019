@@ -1,1 +1,1 @@
-GMTK_GameJam_2019
+GMTK GameJam 2019
