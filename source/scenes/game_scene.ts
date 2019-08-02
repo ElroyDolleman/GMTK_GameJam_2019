@@ -1,5 +1,7 @@
 class GameScene extends Phaser.Scene
 {
+    public player: Player;
+
     constructor()
     {
         super({ key: 'GameScene', active: true});
@@ -10,6 +12,8 @@ class GameScene extends Phaser.Scene
         console.log("Hello World!");
 
         //this.load.spritesheet();
+
+        this.player = new Player();
     }
 
     create()
@@ -19,7 +23,7 @@ class GameScene extends Phaser.Scene
 
     update()
     {
-        
+        this.player.Update();
     }
 
     draw()
