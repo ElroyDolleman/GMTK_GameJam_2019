@@ -1,0 +1,14 @@
+body {
+    background: #111;
+    width: 100%;
+    display: block;
+    margin: 0;
+}
+
+canvas {
+    /*max-width: 480px;
+    max-height: 800px;*/
+
+    display: block;
+    margin: 0 auto;
+}
