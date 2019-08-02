@@ -14,9 +14,11 @@ class IdleState extends GroundedState
 
     public Update()
     {
+        super.Update();
+
         this.player.UpdateMoveControls();
 
-        if (this.player.speedX != 0)
+        if (this.player.speedX != 0 && this.player.currentState == this)
         {
             this.player.ChangeState(this.player.runState);
         }

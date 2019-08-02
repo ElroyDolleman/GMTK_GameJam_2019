@@ -20,7 +20,14 @@ class RunState extends GroundedState
 
     public Update()
     {
+        super.Update();
+
         this.player.UpdateMoveControls();
+
+        if (this.player.currentState != this)
+        {
+            return;
+        }
 
         if (this.player.speedX == 0)
         {

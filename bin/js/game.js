@@ -116,10 +116,10 @@ var Player = /** @class */ (function (_super) {
         _this.scene = scene;
         _this.sprite = _this.scene.add.sprite(0, 320 - 16, 'character');
         _this.sprite.setOrigin(0, 0);
-        _this.inputUp = _this.scene.input.keyboard.addKey('W');
         _this.inputDown = _this.scene.input.keyboard.addKey('S');
         _this.inputLeft = _this.scene.input.keyboard.addKey('A');
         _this.inputRight = _this.scene.input.keyboard.addKey('D');
+        _this.inputJump = _this.scene.input.keyboard.addKey('W');
         _this.idleState = new IdleState(_this);
         _this.runState = new RunState(_this);
         _this.jumpState = new JumpState(_this);
@@ -172,11 +172,20 @@ var BaseState = /** @class */ (function () {
 var AirborneState = /** @class */ (function (_super) {
     __extends(AirborneState, _super);
     function AirborneState(player) {
-        return _super.call(this, player) || this;
+        var _this = _super.call(this, player) || this;
+        _this.gravity = 10;
+        _this.maxFallSpeed = 240;
+        return _this;
     }
     AirborneState.prototype.OnEnter = function () {
     };
     AirborneState.prototype.Update = function () {
+        if (this.player.speedY < this.maxFallSpeed) {
+            this.player.speedY += this.gravity;
+        }
+        else if (this.player.speedY > this.maxFallSpeed) {
+            this.player.speedY = this.maxFallSpeed;
+        }
     };
     AirborneState.prototype.OnCollisionSolved = function () {
     };
@@ -188,6 +197,14 @@ var FallState = /** @class */ (function (_super) {
     function FallState(player) {
         return _super.call(this, player) || this;
     }
+    FallState.prototype.OnEnter = function () {
+        this.player.sprite.setFrame(3);
+    };
+    FallState.prototype.Update = function () {
+        _super.prototype.Update.call(this);
+    };
+    FallState.prototype.OnCollisionSolved = function () {
+    };
     return FallState;
 }(AirborneState));
 /// <reference path="basestate.ts"/>
@@ -196,6 +213,15 @@ var GroundedState = /** @class */ (function (_super) {
     function GroundedState(player) {
         return _super.call(this, player) || this;
     }
+    GroundedState.prototype.OnEnter = function () {
+    };
+    GroundedState.prototype.Update = function () {
+        if (this.player.inputJump.isDown) {
+            this.player.ChangeState(this.player.jumpState);
+        }
+    };
+    GroundedState.prototype.OnCollisionSolved = function () {
+    };
     return GroundedState;
 }(BaseState));
 /// <reference path="state_grounded.ts"/>
@@ -208,8 +234,9 @@ var IdleState = /** @class */ (function (_super) {
         this.player.sprite.setFrame(0);
     };
     IdleState.prototype.Update = function () {
+        _super.prototype.Update.call(this);
         this.player.UpdateMoveControls();
-        if (this.player.speedX != 0) {
+        if (this.player.speedX != 0 && this.player.currentState == this) {
             this.player.ChangeState(this.player.runState);
         }
     };
@@ -223,6 +250,18 @@ var JumpState = /** @class */ (function (_super) {
     function JumpState(player) {
         return _super.call(this, player) || this;
     }
+    JumpState.prototype.OnEnter = function () {
+        this.player.speedY = -200;
+        this.player.sprite.setFrame(2);
+    };
+    JumpState.prototype.Update = function () {
+        _super.prototype.Update.call(this);
+        if (this.player.speedY >= 0) {
+            this.player.ChangeState(this.player.fallState);
+        }
+    };
+    JumpState.prototype.OnCollisionSolved = function () {
+    };
     return JumpState;
 }(AirborneState));
 /// <reference path="state_grounded.ts"/>
@@ -237,7 +276,11 @@ var RunState = /** @class */ (function (_super) {
         this.player.sprite.setFrame(this.curFrame);
     };
     RunState.prototype.Update = function () {
+        _super.prototype.Update.call(this);
         this.player.UpdateMoveControls();
+        if (this.player.currentState != this) {
+            return;
+        }
         if (this.player.speedX == 0) {
             this.player.ChangeState(this.player.idleState);
         }

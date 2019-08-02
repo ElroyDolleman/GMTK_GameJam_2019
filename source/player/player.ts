@@ -11,10 +11,10 @@ class Player extends Actor
 
     public scene: Phaser.Scene;
 
-    public inputUp: Phaser.Input.Keyboard.Key;
     public inputDown: Phaser.Input.Keyboard.Key;
     public inputLeft: Phaser.Input.Keyboard.Key;
     public inputRight: Phaser.Input.Keyboard.Key;
+    public inputJump: Phaser.Input.Keyboard.Key;
 
     constructor(scene: Phaser.Scene)
     {
@@ -25,10 +25,10 @@ class Player extends Actor
         this.sprite = this.scene.add.sprite(0, 320-16, 'character');
         this.sprite.setOrigin(0, 0);
 
-        this.inputUp = this.scene.input.keyboard.addKey('W');
         this.inputDown = this.scene.input.keyboard.addKey('S');
         this.inputLeft = this.scene.input.keyboard.addKey('A');
         this.inputRight = this.scene.input.keyboard.addKey('D');
+        this.inputJump = this.scene.input.keyboard.addKey('W');
 
         this.idleState = new IdleState(this);
         this.runState = new RunState(this);

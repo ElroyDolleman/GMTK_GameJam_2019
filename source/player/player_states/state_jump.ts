@@ -7,5 +7,24 @@ class JumpState extends AirborneState
         super(player);
     }
 
-    
+    public OnEnter()
+    {
+        this.player.speedY = -200;
+        this.player.sprite.setFrame(2);
+    }
+
+    public Update()
+    {
+        super.Update();
+
+        if (this.player.speedY >= 0)
+        {
+            this.player.ChangeState(this.player.fallState);
+        }
+    }
+
+    public OnCollisionSolved()
+    {
+
+    }
 }

@@ -7,5 +7,18 @@ class FallState extends AirborneState
         super(player);
     }
 
-    
+    public OnEnter()
+    {
+        this.player.sprite.setFrame(3);
+    }
+
+    public Update()
+    {
+        super.Update();
+    }
+
+    public OnCollisionSolved()
+    {
+
+    }
 }

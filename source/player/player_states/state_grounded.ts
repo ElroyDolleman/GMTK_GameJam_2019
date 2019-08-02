@@ -7,5 +7,21 @@ class GroundedState extends BaseState
         super(player);
     }
 
-    
+    public OnEnter()
+    {
+        
+    }
+
+    public Update()
+    {
+        if (this.player.inputJump.isDown)
+        {
+            this.player.ChangeState(this.player.jumpState);
+        }
+    }
+
+    public OnCollisionSolved()
+    {
+
+    }
 }
