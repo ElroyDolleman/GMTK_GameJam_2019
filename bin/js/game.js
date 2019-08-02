@@ -11,6 +11,44 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var Actor = /** @class */ (function () {
+    function Actor() {
+        this.speedX = 0;
+        this.speedY = 0;
+    }
+    Object.defineProperty(Actor.prototype, "posX", {
+        get: function () { return this.sprite.x; },
+        set: function (x) { this.sprite.setX(x); },
+        enumerable: true,
+        configurable: true
+    });
+    ;
+    Object.defineProperty(Actor.prototype, "posY", {
+        get: function () { return this.sprite.y; },
+        set: function (y) { this.sprite.setY(y); },
+        enumerable: true,
+        configurable: true
+    });
+    ;
+    ;
+    ;
+    Object.defineProperty(Actor.prototype, "speedXDir", {
+        get: function () { return this.speedX == 0 ? 0 : (this.speedX > 0 ? 1 : -1); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Actor.prototype, "speedYDir", {
+        get: function () { return this.speedY == 0 ? 0 : (this.speedY > 0 ? 1 : -1); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Actor.prototype, "globalHitbox", {
+        get: function () { return new Rectangle(this.posX + this.localHitbox.x, this.posY + this.localHitbox.y, this.localHitbox.width, this.localHitbox.height); },
+        enumerable: true,
+        configurable: true
+    });
+    return Actor;
+}());
 var GameScene = /** @class */ (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
@@ -18,13 +56,23 @@ var GameScene = /** @class */ (function (_super) {
     }
     GameScene.prototype.preload = function () {
         console.log("Hello World!");
-        //this.load.spritesheet();
-        this.player = new Player();
+        this.load.spritesheet('character', 'assets/character.png', { frameWidth: 16, frameHeight: 16 });
+        this.load.spritesheet('tilessheet', 'assets/tilessheet.png', { frameWidth: 16, frameHeight: 16 });
     };
     GameScene.prototype.create = function () {
+        this.player = new Player(this);
     };
     GameScene.prototype.update = function () {
         this.player.Update();
+        this.player.posX += this.player.speedX * (1 / 60);
+        this.player.posY += this.player.speedY * (1 / 60);
+        if (this.player.speedXDir < 0) {
+            this.player.sprite.flipX = true;
+        }
+        else if (this.player.speedXDir > 0) {
+            this.player.sprite.flipX = false;
+        }
+        console.log(this.player.posX);
     };
     GameScene.prototype.draw = function () {
     };
@@ -33,23 +81,51 @@ var GameScene = /** @class */ (function (_super) {
 /// <reference path="scenes/game_scene.ts"/>
 var config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 720,
+    width: 320,
+    height: 320,
+    scaleMode: 3,
+    pixelArt: true,
     backgroundColor: '#e9f4fc',
     parent: 'GMTK Game Jam 2019',
     title: "GMTK Game Jam 2019",
     version: "0.0.1",
     disableContextMenu: true,
-    scene: [GameScene]
+    scene: [GameScene],
 };
 var game = new Phaser.Game(config);
-var Player = /** @class */ (function () {
-    function Player() {
-        this.idleState = new IdleState(this);
-        this.runState = new RunState(this);
-        this.jumpState = new JumpState(this);
-        this.fallState = new FallState(this);
-        this.ChangeState(this.idleState);
+var Rectangle = /** @class */ (function () {
+    function Rectangle(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+    Rectangle.prototype.Intersects = function (other) {
+        return other.x < (this.x + this.width) &&
+            this.x < (other.x + other.width) &&
+            other.y < this.y + this.height &&
+            this.y < other.y + other.height;
+    };
+    return Rectangle;
+}());
+/// <reference path="../actor.ts"/>
+var Player = /** @class */ (function (_super) {
+    __extends(Player, _super);
+    function Player(scene) {
+        var _this = _super.call(this) || this;
+        _this.scene = scene;
+        _this.sprite = _this.scene.add.sprite(0, 320 - 16, 'character');
+        _this.sprite.setOrigin(0, 0);
+        _this.inputUp = _this.scene.input.keyboard.addKey('W');
+        _this.inputDown = _this.scene.input.keyboard.addKey('S');
+        _this.inputLeft = _this.scene.input.keyboard.addKey('A');
+        _this.inputRight = _this.scene.input.keyboard.addKey('D');
+        _this.idleState = new IdleState(_this);
+        _this.runState = new RunState(_this);
+        _this.jumpState = new JumpState(_this);
+        _this.fallState = new FallState(_this);
+        _this.ChangeState(_this.idleState);
+        return _this;
     }
     Player.prototype.ChangeState = function (state) {
         this.currentState = state;
@@ -58,14 +134,33 @@ var Player = /** @class */ (function () {
     Player.prototype.Update = function () {
         this.currentState.Update();
     };
+    Player.prototype.UpdateMoveControls = function () {
+        if (this.inputLeft.isDown) {
+            if (this.speedX > -120) {
+                this.speedX = Math.max(this.speedX - 30, -120);
+            }
+        }
+        else if (this.inputRight.isDown) {
+            if (this.speedX < 120) {
+                this.speedX = Math.min(this.speedX + 30, 120);
+            }
+        }
+        else {
+            if (Math.abs(this.speedX) < 30) {
+                this.speedX = 0;
+            }
+            else {
+                this.speedX -= 30 * this.speedXDir;
+            }
+        }
+    };
     return Player;
-}());
+}(Actor));
 var BaseState = /** @class */ (function () {
     function BaseState(player) {
         this.player = player;
     }
     BaseState.prototype.OnEnter = function () {
-        console.log("BaseState::OnEnter");
     };
     BaseState.prototype.Update = function () {
     };
@@ -110,8 +205,15 @@ var IdleState = /** @class */ (function (_super) {
         return _super.call(this, player) || this;
     }
     IdleState.prototype.OnEnter = function () {
-        console.log("Enter idle state");
-        _super.prototype.OnEnter.call(this);
+        this.player.sprite.setFrame(0);
+    };
+    IdleState.prototype.Update = function () {
+        this.player.UpdateMoveControls();
+        if (this.player.speedX != 0) {
+            this.player.ChangeState(this.player.runState);
+        }
+    };
+    IdleState.prototype.OnCollisionSolved = function () {
     };
     return IdleState;
 }(GroundedState));
@@ -129,6 +231,27 @@ var RunState = /** @class */ (function (_super) {
     function RunState(player) {
         return _super.call(this, player) || this;
     }
+    RunState.prototype.OnEnter = function () {
+        this.curFrame = 1;
+        this.animTimer = 0;
+        this.player.sprite.setFrame(this.curFrame);
+    };
+    RunState.prototype.Update = function () {
+        this.player.UpdateMoveControls();
+        if (this.player.speedX == 0) {
+            this.player.ChangeState(this.player.idleState);
+        }
+        else {
+            this.animTimer += (1 / 60);
+            if (this.animTimer > 0.2) {
+                this.animTimer = 0;
+                this.curFrame = this.curFrame == 1 ? 0 : 1;
+                this.player.sprite.setFrame(this.curFrame);
+            }
+        }
+    };
+    RunState.prototype.OnCollisionSolved = function () {
+    };
     return RunState;
 }(GroundedState));
 //# sourceMappingURL=game.js.map

@@ -9,6 +9,21 @@ class IdleState extends GroundedState
 
     public OnEnter()
     {
-        console.log("Enter idle state");
+        this.player.sprite.setFrame(0);
+    }
+
+    public Update()
+    {
+        this.player.UpdateMoveControls();
+
+        if (this.player.speedX != 0)
+        {
+            this.player.ChangeState(this.player.runState);
+        }
+    }
+
+    public OnCollisionSolved()
+    {
+
     }
 }

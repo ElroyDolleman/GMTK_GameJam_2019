@@ -9,7 +9,7 @@ class BaseState
 
     public OnEnter()
     {
-        console.log("BaseState::OnEnter");
+        
     }
 
     public Update()

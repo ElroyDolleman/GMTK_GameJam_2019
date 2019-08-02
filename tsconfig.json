@@ -2,6 +2,8 @@
     "compilerOptions": {
         "target": "es5",
         "sourceMap": true,
-        "outFile": "bin/js/game.js"
+        "outFile": "bin/js/game.js",
+        "module": "system",
+        "noImplicitAny": true
     }
 }
