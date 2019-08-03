@@ -3,15 +3,19 @@ class GameScene extends Phaser.Scene
     public levelOrder = [LEVEL01, LEVEL02];
     public currentLevel = 0;
 
+    public fruitsCollected = 0;
+
     public inputReset: Phaser.Input.Keyboard.Key;
 
     public static instance: GameScene;
 
     public player: Player;
     public key: Key;
+    public fruit: Fruit;
 
     public keySpawn: Phaser.Geom.Point;
     public playerSpawn: Phaser.Geom.Point;
+    public fruitSpawn: Phaser.Geom.Point;
 
     public prevPlayerHitbox: Rectangle;
 
@@ -45,6 +49,10 @@ class GameScene extends Phaser.Scene
 
         this.player.posX = this.playerSpawn.x;
         this.player.posY = this.playerSpawn.y;
+
+        this.fruit = new Fruit();
+        this.fruit.posX = this.fruitSpawn.x;
+        this.fruit.posY = this.fruitSpawn.y - 8;
     }
 
     nextLevel()
@@ -55,20 +63,24 @@ class GameScene extends Phaser.Scene
 
         this.tiles = LevelLoader.load(this.levelOrder[this.currentLevel]);
         
-        this.resetKeyAndPlayer();
+        this.resetObjects();
     }
 
     reset()
     {
         LevelLoader.reload();
-        this.resetKeyAndPlayer();
+        this.resetObjects();
     }
 
-    resetKeyAndPlayer()
+    resetObjects()
     {
         this.key.SetActive(true);
         this.key.posX = this.keySpawn.x;
         this.key.posY = this.keySpawn.y;
+
+        this.fruit.active = true;
+        this.fruit.posX = this.fruitSpawn.x;
+        this.fruit.posY = this.fruitSpawn.y - 8;
 
         this.player.posX = this.playerSpawn.x;
         this.player.posY = this.playerSpawn.y;
@@ -90,6 +102,8 @@ class GameScene extends Phaser.Scene
 
         if (this.player.posX < 0) this.player.posX = 0;
         if (this.key.posX < 0) this.key.posX = 0;
+
+        if (this.fruit.active) this.fruit.Update();
 
         if (this.player.posX > 321 + this.player.localHitbox.width)
         {
