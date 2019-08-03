@@ -37,7 +37,7 @@ class RunState extends GroundedState
         {
             this.animTimer += (1/60);
 
-            if (this.animTimer > 0.2)
+            if (this.animTimer > 0.2 * (100 / Math.abs(this.player.speedX)))
             {
                 this.animTimer = 0;
                 this.curFrame = this.curFrame == 1 ? 0 : 1;

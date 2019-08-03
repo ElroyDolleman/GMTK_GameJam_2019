@@ -14,7 +14,7 @@ class GroundedState extends BaseState
 
     public Update()
     {
-        if (this.player.inputJump.isDown)
+        if (Phaser.Input.Keyboard.JustDown(this.player.inputJump))
         {
             this.player.ChangeState(this.player.jumpState);
         }

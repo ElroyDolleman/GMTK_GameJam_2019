@@ -27,6 +27,11 @@ class Actor
 
     }
 
+    public BeforeCollisionCheck(tiles: Tile[])
+    {
+
+    }
+
     public OnCollisionSolved(result: CollisionResult)
     {
 

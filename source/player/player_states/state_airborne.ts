@@ -2,7 +2,6 @@
 
 class AirborneState extends BaseState
 {
-    gravity: number = 10;
     maxFallSpeed: number = 240;
 
     constructor(player: Player)
@@ -21,7 +20,7 @@ class AirborneState extends BaseState
 
         if (this.player.speedY < this.maxFallSpeed)
         {
-            this.player.speedY += this.gravity;
+            this.player.speedY += this.player.gravity;
         }
         else if (this.player.speedY > this.maxFallSpeed)
         {

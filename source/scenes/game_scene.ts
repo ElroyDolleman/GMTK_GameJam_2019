@@ -5,6 +5,9 @@ class GameScene extends Phaser.Scene
     public player: Player;
     public key: Key;
 
+    public keySpawn: Phaser.Geom.Point;
+    public playerSpawn: Phaser.Geom.Point;
+
     public tiles: Tile[];
 
     constructor()
@@ -24,12 +27,17 @@ class GameScene extends Phaser.Scene
 
     create()
     {
+        this.tiles = LevelLoader.load(LEVEL01);
+
         this.player = new Player(this);
         this.key = new Key(this.player);
-
         this.player.key = this.key;
 
-        this.tiles = LevelLoader.load(LEVEL01);
+        this.key.posX = this.keySpawn.x;
+        this.key.posY = this.keySpawn.y;
+
+        this.player.posX = this.playerSpawn.x;
+        this.player.posY = this.playerSpawn.y;
     }
 
     update()
@@ -38,14 +46,10 @@ class GameScene extends Phaser.Scene
         this.key.Update();
 
         this.moveActor(this.player);
-
-        if (this.key.state != KEY_GRABBED)
-        {
-            this.moveActor(this.key);
-        }
+        this.moveActor(this.key, this.key.state != KEY_GRABBED);
     }
 
-    moveActor(actor: Actor)
+    moveActor(actor: Actor, solveCollision: boolean = true)
     {
         // if (actor.speedX == 0 && actor.speedY == 0)
         // {
@@ -61,6 +65,18 @@ class GameScene extends Phaser.Scene
         let endX = Math.floor((hitbox.right + 2) / 16);
         let endY = Math.floor((hitbox.bottom + 2) / 16);
 
+        for (let x = gridX; x <= gridX + endX; x++)
+        {
+            for (let y = gridY; y <= gridY + endY; y++)
+            {
+                result.tiles.push(this.tiles[x % 20 + y * 20]);
+            }
+        }
+
+        actor.BeforeCollisionCheck(result.tiles);
+
+        if (!solveCollision) return;
+
         // X
         actor.posX += actor.speedX * (1/60);
         
@@ -69,8 +85,6 @@ class GameScene extends Phaser.Scene
             for (let y = gridY; y <= gridY + endY; y++)
             {
                 let i = x % 20 + y * 20;
-
-                result.tiles.push(this.tiles[i]);
 
                 if (this.tiles[i] == undefined || !this.tiles[i].solid || !this.tiles[i].hitbox.Intersects(actor.globalHitbox))
                 {

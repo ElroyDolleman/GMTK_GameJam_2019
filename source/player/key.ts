@@ -41,6 +41,17 @@ class Key extends Actor
         }
     }
 
+    public BeforeCollisionCheck(tiles: Tile[])
+    {
+        for (let i = 0; i < tiles.length; i++)
+        {
+            if (tiles[i] != undefined && tiles[i].tileType == TILETYPE_KEYBLOCK && tiles[i].hitbox.Intersects(this.globalHitbox))
+            {
+                tiles[i].Unlock();
+            }
+        }
+    }
+
     public OnCollisionSolved(result: CollisionResult)
     {
         if (result.onBottom)

@@ -1,7 +1,22 @@
 /// <reference path="../actor.ts"/>
 
+const BASE_JUMPPOWER = 220;
+const BASE_MAXRUNSPEED = 100;
+const BASE_ACCELSPEED = 20;
+const BASE_GRAVITY = 11.5;
+
+const KEYHOLD_JUMPPOWER = 200;
+const KEYHOLD_MAXRUNSPEED = 80;
+const KEYHOLD_ACCELSPEED = 10;
+const KEYHOLD_GRAVITY = 14.5;
+
 class Player extends Actor
 {
+    public maxRunSpeed = BASE_MAXRUNSPEED;
+    public accelSpeed = BASE_ACCELSPEED;
+    public jumpPower = BASE_JUMPPOWER;
+    public gravity = BASE_GRAVITY;
+
     public idleState: IdleState;
     public runState: RunState;
     public jumpState: JumpState;
@@ -17,10 +32,10 @@ class Player extends Actor
     public inputRight: Phaser.Input.Keyboard.Key;
 
     public inputJump: Phaser.Input.Keyboard.Key;
-    public inputHold: Phaser.Input.Keyboard.Key;
+    public inputGrab: Phaser.Input.Keyboard.Key;
 
     public key: Key;
-    public get holdsKey(): boolean { return this.key.state == KEY_GRABBED; }
+    public get isHoldingKey(): boolean { return this.key.state == KEY_GRABBED; }
 
     public hitboxWidth = 10;
     public hitboxX = 3;
@@ -42,7 +57,7 @@ class Player extends Actor
         this.inputRight = this.scene.input.keyboard.addKey('right');
 
         this.inputJump = this.scene.input.keyboard.addKey('Space');
-        this.inputHold = this.scene.input.keyboard.addKey('Z');
+        this.inputGrab = this.scene.input.keyboard.addKey('Z');
 
         this.idleState = new IdleState(this);
         this.runState = new RunState(this);
@@ -62,7 +77,7 @@ class Player extends Actor
     {
         this.currentState.Update();
 
-        if (this.holdsKey)
+        if (this.isHoldingKey)
         {
             //this.key.posX = this.globalHitbox.right;
             //this.key.posY = this.posY;
@@ -82,13 +97,18 @@ class Player extends Actor
             this.sprite.flipX = false;
         }
 
-        if (!this.holdsKey && this.inputHold.isDown && this.key.globalHitbox.Intersects(this.globalHitbox))
+        let releaseKey = false;
+
+        if (!this.isHoldingKey && Phaser.Input.Keyboard.JustDown(this.inputGrab) && this.key.globalHitbox.Intersects(this.globalHitbox))
         {
-            this.key.state = KEY_GRABBED;
-            this.localHitbox.width = this.hitboxWidth + this.key.localHitbox.width - 2;
+            this.GrabKey();
+        }
+        else if (this.isHoldingKey && Phaser.Input.Keyboard.JustDown(this.inputGrab))
+        {
+            releaseKey = true;
         }
 
-        if (this.holdsKey)
+        if (this.isHoldingKey)
         {
             if (this.sprite.flipX)
             {
@@ -108,42 +128,67 @@ class Player extends Actor
             this.key.posX = !this.sprite.flipX ? this.globalHitbox.x + this.hitboxWidth : this.globalHitbox.x;
             this.key.posY = this.posY;
 
-            if (this.inputHold.isUp)
-            {
-                this.key.state = KEY_INAIR;
-
-                // Restore original hitbox
-                this.localHitbox.x = this.hitboxX;
-                this.localHitbox.width = this.hitboxWidth;
-            }
+            if (releaseKey) this.ReleaseKey();
         }
+    }
+
+    public GrabKey()
+    {
+        this.key.state = KEY_GRABBED;
+        this.localHitbox.width = this.hitboxWidth + this.key.localHitbox.width - 2;
+
+        this.maxRunSpeed = KEYHOLD_MAXRUNSPEED;
+        this.accelSpeed = KEYHOLD_ACCELSPEED;
+        this.jumpPower = KEYHOLD_JUMPPOWER;
+        this.gravity = KEYHOLD_GRAVITY;
+    }
+
+    public ReleaseKey()
+    {
+        this.key.state = KEY_INAIR;
+
+        this.localHitbox.x = this.hitboxX;
+        this.localHitbox.width = this.hitboxWidth;
+
+        this.maxRunSpeed = BASE_MAXRUNSPEED;
+        this.accelSpeed = BASE_ACCELSPEED;
+        this.jumpPower = BASE_JUMPPOWER;
+        this.gravity = BASE_GRAVITY;
     }
 
     public UpdateMoveControls()
     {
         if (this.inputLeft.isDown)
         {
-            if (this.speedX > -100)
+            if (this.speedX > -this.maxRunSpeed)
             {
-                this.speedX = Math.max(this.speedX - 20, -100);
+                this.speedX = Math.max(this.speedX - this.accelSpeed, -this.maxRunSpeed);
+            }
+            else if (this.speedX < -this.maxRunSpeed)
+            {
+                this.speedX = Math.min(this.speedX + this.accelSpeed, -this.maxRunSpeed);
             }
         }
         else if (this.inputRight.isDown)
         {
-            if (this.speedX < 100)
+            if (this.speedX < this.maxRunSpeed)
             {
-                this.speedX = Math.min(this.speedX + 20, 100);
+                this.speedX = Math.min(this.speedX + this.accelSpeed, this.maxRunSpeed);
+            }
+            else if (this.speedX > this.maxRunSpeed)
+            {
+                this.speedX = Math.max(this.speedX - this.accelSpeed, this.maxRunSpeed);
             }
         }
         else
         {
-            if (Math.abs(this.speedX) < 20)
+            if (Math.abs(this.speedX) < this.accelSpeed)
             {
                 this.speedX = 0;
             }
             else
             {
-                this.speedX -= 20 * this.speedXDir;
+                this.speedX -= this.accelSpeed * this.speedXDir;
             }
         }
     }

@@ -9,7 +9,7 @@ class JumpState extends AirborneState
 
     public OnEnter()
     {
-        this.player.speedY = -200;
+        this.player.speedY = -this.player.jumpPower;
         this.player.sprite.setFrame(2);
     }
 

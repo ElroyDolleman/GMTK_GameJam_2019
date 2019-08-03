@@ -64,6 +64,8 @@ var Actor = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Actor.prototype.BeforeCollisionCheck = function (tiles) {
+    };
     Actor.prototype.OnCollisionSolved = function (result) {
     };
     return Actor;
@@ -81,36 +83,46 @@ var GameScene = /** @class */ (function (_super) {
         this.load.spritesheet('tilessheet', 'assets/tilessheet.png', { frameWidth: 16, frameHeight: 16 });
     };
     GameScene.prototype.create = function () {
+        this.tiles = LevelLoader.load(LEVEL01);
         this.player = new Player(this);
         this.key = new Key(this.player);
         this.player.key = this.key;
-        this.tiles = LevelLoader.load(LEVEL01);
+        this.key.posX = this.keySpawn.x;
+        this.key.posY = this.keySpawn.y;
+        this.player.posX = this.playerSpawn.x;
+        this.player.posY = this.playerSpawn.y;
     };
     GameScene.prototype.update = function () {
         this.player.Update();
         this.key.Update();
         this.moveActor(this.player);
-        if (this.key.state != KEY_GRABBED) {
-            this.moveActor(this.key);
-        }
+        this.moveActor(this.key, this.key.state != KEY_GRABBED);
     };
-    GameScene.prototype.moveActor = function (actor) {
+    GameScene.prototype.moveActor = function (actor, solveCollision) {
         // if (actor.speedX == 0 && actor.speedY == 0)
         // {
         //     return;
         // }
+        if (solveCollision === void 0) { solveCollision = true; }
         var result = new CollisionResult();
         var hitbox = actor.nextHitbox;
         var gridX = Math.floor((hitbox.x - 1) / 16);
         var gridY = Math.floor((hitbox.y - 1) / 16);
         var endX = Math.floor((hitbox.right + 2) / 16);
         var endY = Math.floor((hitbox.bottom + 2) / 16);
+        for (var x = gridX; x <= gridX + endX; x++) {
+            for (var y = gridY; y <= gridY + endY; y++) {
+                result.tiles.push(this.tiles[x % 20 + y * 20]);
+            }
+        }
+        actor.BeforeCollisionCheck(result.tiles);
+        if (!solveCollision)
+            return;
         // X
         actor.posX += actor.speedX * (1 / 60);
         for (var x = gridX; x <= gridX + endX; x++) {
             for (var y = gridY; y <= gridY + endY; y++) {
                 var i = x % 20 + y * 20;
-                result.tiles.push(this.tiles[i]);
                 if (this.tiles[i] == undefined || !this.tiles[i].solid || !this.tiles[i].hitbox.Intersects(actor.globalHitbox)) {
                     continue;
                 }
@@ -203,7 +215,7 @@ var Rectangle = /** @class */ (function () {
     };
     return Rectangle;
 }());
-var LEVEL01 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 13, 11, 0, 0, 0, 0, 0, 0, 28, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 12, 2, 2, 2, 2, 2, 2, 2, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+var LEVEL01 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 4, 18, 18, 18, 18, 18, 5, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 17, 11, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 9, 11, 0, 0, 0, 0, 0, 21, 11, 0, 0, 0, 0, 1, 3, 0, 0, 9, 11, 0, 17, 19, 0, 0, 0, 0, 0, 26, 11, 0, 7, 0, 0, 9, 11, 0, 0, 9, 11, 6, 0, 0, 0, 0, 25, 0, 0, 29, 12, 2, 2, 2, 2, 13, 12, 2, 2, 13, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LevelLoader = /** @class */ (function () {
     function LevelLoader() {
     }
@@ -214,10 +226,31 @@ var LevelLoader = /** @class */ (function () {
             var y = Math.floor(i / 20);
             var rect = new Rectangle(x * 16, y * 16, 16, 16);
             var tileType = TILETYPE_EMPTY;
-            if (array[i] > 0) {
-                tileType = TILETYPE_SOLID;
+            var frame = array[i] - 1;
+            switch (array[i]) {
+                case 6:
+                    GameScene.instance.keySpawn = new Phaser.Geom.Point(x * 16, y * 16);
+                    frame = -1;
+                    break;
+                case 7:
+                    GameScene.instance.playerSpawn = new Phaser.Geom.Point(x * 16, y * 16);
+                    frame = -1;
+                    break;
+                case 20:
+                case 21:
+                case 26:
+                case 27:
+                case 28:
+                case 29:
+                    tileType = TILETYPE_KEYBLOCK;
+                    break;
+                default:
+                    if (array[i] > 0) {
+                        tileType = TILETYPE_SOLID;
+                    }
+                    break;
             }
-            tiles.push(new Tile(rect, tileType, array[i] - 1));
+            tiles.push(new Tile(rect, tileType, frame));
         }
         return tiles;
     };
@@ -225,20 +258,49 @@ var LevelLoader = /** @class */ (function () {
 }());
 var TILETYPE_EMPTY = 0;
 var TILETYPE_SOLID = 1;
+var TILETYPE_KEYBLOCK = 2;
 var Tile = /** @class */ (function () {
     function Tile(hitbox, tileType, frame) {
+        this.connections = [];
         this.hitbox = hitbox;
         this.tileType = tileType;
         if (tileType > 0) {
             this.sprite = GameScene.instance.add.sprite(hitbox.x, hitbox.y, 'tilessheet', frame);
             this.sprite.setOrigin(0, 0);
         }
+        if (tileType == TILETYPE_KEYBLOCK) {
+            switch (frame) {
+                case 19:
+                case 20:
+                    this.connections.push(new Phaser.Geom.Point(hitbox.x / 16, hitbox.y / 16 + 1));
+                    break;
+                case 27:
+                case 28:
+                    this.connections.push(new Phaser.Geom.Point(hitbox.x / 16, hitbox.y / 16 - 1));
+                    break;
+                case 25:
+                    this.connections.push(new Phaser.Geom.Point(hitbox.x / 16, hitbox.y / 16 - 1));
+                    this.connections.push(new Phaser.Geom.Point(hitbox.x / 16, hitbox.y / 16 + 1));
+                    break;
+            }
+        }
     }
     Object.defineProperty(Tile.prototype, "solid", {
-        get: function () { return this.tileType == TILETYPE_SOLID; },
+        get: function () { return this.tileType == TILETYPE_SOLID || this.tileType == TILETYPE_KEYBLOCK; },
         enumerable: true,
         configurable: true
     });
+    Tile.prototype.Unlock = function () {
+        this.tileType = TILETYPE_EMPTY;
+        this.sprite.setVisible(false);
+        while (this.connections.length > 0) {
+            var index = this.connections[0].x % 20 + this.connections[0].y * 20;
+            if (GameScene.instance.tiles[index].tileType == TILETYPE_KEYBLOCK) {
+                GameScene.instance.tiles[index].Unlock();
+            }
+            this.connections.splice(0);
+        }
+    };
     return Tile;
 }());
 var KEY_GROUNDED = 0;
@@ -268,6 +330,13 @@ var Key = /** @class */ (function (_super) {
             }
         }
     };
+    Key.prototype.BeforeCollisionCheck = function (tiles) {
+        for (var i = 0; i < tiles.length; i++) {
+            if (tiles[i] != undefined && tiles[i].tileType == TILETYPE_KEYBLOCK && tiles[i].hitbox.Intersects(this.globalHitbox)) {
+                tiles[i].Unlock();
+            }
+        }
+    };
     Key.prototype.OnCollisionSolved = function (result) {
         if (result.onBottom) {
             this.speedY = 0;
@@ -289,10 +358,22 @@ var Key = /** @class */ (function (_super) {
     return Key;
 }(Actor));
 /// <reference path="../actor.ts"/>
+var BASE_JUMPPOWER = 220;
+var BASE_MAXRUNSPEED = 100;
+var BASE_ACCELSPEED = 20;
+var BASE_GRAVITY = 11.5;
+var KEYHOLD_JUMPPOWER = 200;
+var KEYHOLD_MAXRUNSPEED = 80;
+var KEYHOLD_ACCELSPEED = 10;
+var KEYHOLD_GRAVITY = 14.5;
 var Player = /** @class */ (function (_super) {
     __extends(Player, _super);
     function Player(scene) {
         var _this = _super.call(this) || this;
+        _this.maxRunSpeed = BASE_MAXRUNSPEED;
+        _this.accelSpeed = BASE_ACCELSPEED;
+        _this.jumpPower = BASE_JUMPPOWER;
+        _this.gravity = BASE_GRAVITY;
         _this.hitboxWidth = 10;
         _this.hitboxX = 3;
         _this.scene = scene;
@@ -304,7 +385,7 @@ var Player = /** @class */ (function (_super) {
         _this.inputLeft = _this.scene.input.keyboard.addKey('left');
         _this.inputRight = _this.scene.input.keyboard.addKey('right');
         _this.inputJump = _this.scene.input.keyboard.addKey('Space');
-        _this.inputHold = _this.scene.input.keyboard.addKey('Z');
+        _this.inputGrab = _this.scene.input.keyboard.addKey('Z');
         _this.idleState = new IdleState(_this);
         _this.runState = new RunState(_this);
         _this.jumpState = new JumpState(_this);
@@ -312,7 +393,7 @@ var Player = /** @class */ (function (_super) {
         _this.ChangeState(_this.idleState);
         return _this;
     }
-    Object.defineProperty(Player.prototype, "holdsKey", {
+    Object.defineProperty(Player.prototype, "isHoldingKey", {
         get: function () { return this.key.state == KEY_GRABBED; },
         enumerable: true,
         configurable: true
@@ -323,7 +404,7 @@ var Player = /** @class */ (function (_super) {
     };
     Player.prototype.Update = function () {
         this.currentState.Update();
-        if (this.holdsKey) {
+        if (this.isHoldingKey) {
             //this.key.posX = this.globalHitbox.right;
             //this.key.posY = this.posY;
         }
@@ -336,11 +417,14 @@ var Player = /** @class */ (function (_super) {
         else if (this.speedXDir > 0) {
             this.sprite.flipX = false;
         }
-        if (!this.holdsKey && this.inputHold.isDown && this.key.globalHitbox.Intersects(this.globalHitbox)) {
-            this.key.state = KEY_GRABBED;
-            this.localHitbox.width = this.hitboxWidth + this.key.localHitbox.width - 2;
+        var releaseKey = false;
+        if (!this.isHoldingKey && Phaser.Input.Keyboard.JustDown(this.inputGrab) && this.key.globalHitbox.Intersects(this.globalHitbox)) {
+            this.GrabKey();
         }
-        if (this.holdsKey) {
+        else if (this.isHoldingKey && Phaser.Input.Keyboard.JustDown(this.inputGrab)) {
+            releaseKey = true;
+        }
+        if (this.isHoldingKey) {
             if (this.sprite.flipX) {
                 this.key.sprite.flipX = true;
                 this.key.sprite.setOrigin(0.5, 0);
@@ -353,31 +437,50 @@ var Player = /** @class */ (function (_super) {
             }
             this.key.posX = !this.sprite.flipX ? this.globalHitbox.x + this.hitboxWidth : this.globalHitbox.x;
             this.key.posY = this.posY;
-            if (this.inputHold.isUp) {
-                this.key.state = KEY_INAIR;
-                // Restore original hitbox
-                this.localHitbox.x = this.hitboxX;
-                this.localHitbox.width = this.hitboxWidth;
-            }
+            if (releaseKey)
+                this.ReleaseKey();
         }
+    };
+    Player.prototype.GrabKey = function () {
+        this.key.state = KEY_GRABBED;
+        this.localHitbox.width = this.hitboxWidth + this.key.localHitbox.width - 2;
+        this.maxRunSpeed = KEYHOLD_MAXRUNSPEED;
+        this.accelSpeed = KEYHOLD_ACCELSPEED;
+        this.jumpPower = KEYHOLD_JUMPPOWER;
+        this.gravity = KEYHOLD_GRAVITY;
+    };
+    Player.prototype.ReleaseKey = function () {
+        this.key.state = KEY_INAIR;
+        this.localHitbox.x = this.hitboxX;
+        this.localHitbox.width = this.hitboxWidth;
+        this.maxRunSpeed = BASE_MAXRUNSPEED;
+        this.accelSpeed = BASE_ACCELSPEED;
+        this.jumpPower = BASE_JUMPPOWER;
+        this.gravity = BASE_GRAVITY;
     };
     Player.prototype.UpdateMoveControls = function () {
         if (this.inputLeft.isDown) {
-            if (this.speedX > -80) {
-                this.speedX = Math.max(this.speedX - 20, -80);
+            if (this.speedX > -this.maxRunSpeed) {
+                this.speedX = Math.max(this.speedX - this.accelSpeed, -this.maxRunSpeed);
+            }
+            else if (this.speedX < -this.maxRunSpeed) {
+                this.speedX = Math.min(this.speedX + this.accelSpeed, -this.maxRunSpeed);
             }
         }
         else if (this.inputRight.isDown) {
-            if (this.speedX < 80) {
-                this.speedX = Math.min(this.speedX + 20, 80);
+            if (this.speedX < this.maxRunSpeed) {
+                this.speedX = Math.min(this.speedX + this.accelSpeed, this.maxRunSpeed);
+            }
+            else if (this.speedX > this.maxRunSpeed) {
+                this.speedX = Math.max(this.speedX - this.accelSpeed, this.maxRunSpeed);
             }
         }
         else {
-            if (Math.abs(this.speedX) < 20) {
+            if (Math.abs(this.speedX) < this.accelSpeed) {
                 this.speedX = 0;
             }
             else {
-                this.speedX -= 20 * this.speedXDir;
+                this.speedX -= this.accelSpeed * this.speedXDir;
             }
         }
     };
@@ -400,7 +503,6 @@ var AirborneState = /** @class */ (function (_super) {
     __extends(AirborneState, _super);
     function AirborneState(player) {
         var _this = _super.call(this, player) || this;
-        _this.gravity = 10;
         _this.maxFallSpeed = 240;
         return _this;
     }
@@ -409,7 +511,7 @@ var AirborneState = /** @class */ (function (_super) {
     AirborneState.prototype.Update = function () {
         this.player.UpdateMoveControls();
         if (this.player.speedY < this.maxFallSpeed) {
-            this.player.speedY += this.gravity;
+            this.player.speedY += this.player.gravity;
         }
         else if (this.player.speedY > this.maxFallSpeed) {
             this.player.speedY = this.maxFallSpeed;
@@ -458,7 +560,7 @@ var GroundedState = /** @class */ (function (_super) {
     GroundedState.prototype.OnEnter = function () {
     };
     GroundedState.prototype.Update = function () {
-        if (this.player.inputJump.isDown) {
+        if (Phaser.Input.Keyboard.JustDown(this.player.inputJump)) {
             this.player.ChangeState(this.player.jumpState);
         }
     };
@@ -503,7 +605,7 @@ var JumpState = /** @class */ (function (_super) {
         return _super.call(this, player) || this;
     }
     JumpState.prototype.OnEnter = function () {
-        this.player.speedY = -200;
+        this.player.speedY = -this.player.jumpPower;
         this.player.sprite.setFrame(2);
     };
     JumpState.prototype.Update = function () {
@@ -539,7 +641,7 @@ var RunState = /** @class */ (function (_super) {
         }
         else {
             this.animTimer += (1 / 60);
-            if (this.animTimer > 0.2) {
+            if (this.animTimer > 0.2 * (100 / Math.abs(this.player.speedX))) {
                 this.animTimer = 0;
                 this.curFrame = this.curFrame == 1 ? 0 : 1;
                 this.player.sprite.setFrame(this.curFrame);
