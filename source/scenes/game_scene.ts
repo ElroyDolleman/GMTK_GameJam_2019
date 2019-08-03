@@ -53,16 +53,20 @@ class GameScene extends Phaser.Scene
         // }
 
         let result = new CollisionResult();
+        let hitbox = actor.nextHitbox;
 
-        let gridX = Math.floor(actor.nextPosX / 16);
-        let gridY = Math.floor(actor.nextPosY / 16);
+        let gridX = Math.floor((hitbox.x - 1) / 16);
+        let gridY = Math.floor((hitbox.y - 1) / 16);
+
+        let endX = Math.floor((hitbox.right + 2) / 16);
+        let endY = Math.floor((hitbox.bottom + 2) / 16);
 
         // X
         actor.posX += actor.speedX * (1/60);
         
-        for (let x = gridX; x <= gridX + 1; x++)
+        for (let x = gridX; x <= gridX + endX; x++)
         {
-            for (let y = gridY; y <= gridY + 1; y++)
+            for (let y = gridY; y <= gridY + endY; y++)
             {
                 let i = x % 20 + y * 20;
 
@@ -90,9 +94,9 @@ class GameScene extends Phaser.Scene
         // Y
         actor.posY += actor.speedY * (1/60);
 
-        for (let x = gridX; x <= gridX + 1; x++)
+        for (let x = gridX; x <= gridX + endX; x++)
         {
-            for (let y = gridY; y <= gridY + 1; y++)
+            for (let y = gridY; y <= gridY + endY; y++)
             {
                 let i = x % 20 + y * 20;
 
@@ -117,15 +121,6 @@ class GameScene extends Phaser.Scene
         }
 
         actor.OnCollisionSolved(result);
-
-        if (actor.speedXDir < 0)
-        {
-            actor.sprite.flipX = true;
-        }
-        else if (actor.speedXDir > 0)
-        {
-            actor.sprite.flipX = false;
-        }
     }
 
     draw()

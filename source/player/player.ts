@@ -22,6 +22,9 @@ class Player extends Actor
     public key: Key;
     public get holdsKey(): boolean { return this.key.state == KEY_GRABBED; }
 
+    public hitboxWidth = 10;
+    public hitboxX = 3;
+
     constructor(scene: Phaser.Scene)
     {
         super();
@@ -31,15 +34,15 @@ class Player extends Actor
         this.sprite = this.scene.add.sprite(16, 320-48, 'character');
         this.sprite.setOrigin(0, 0);
 
-        this.localHitbox = new Rectangle(3, 1, 10, 15);
+        this.localHitbox = new Rectangle(this.hitboxX, 1, this.hitboxWidth, 15);
 
         this.inputUp = this.scene.input.keyboard.addKey('up');
         this.inputDown = this.scene.input.keyboard.addKey('down');
         this.inputLeft = this.scene.input.keyboard.addKey('left');
         this.inputRight = this.scene.input.keyboard.addKey('right');
 
-        this.inputJump = this.scene.input.keyboard.addKey('Z');
-        this.inputHold = this.scene.input.keyboard.addKey('X');
+        this.inputJump = this.scene.input.keyboard.addKey('Space');
+        this.inputHold = this.scene.input.keyboard.addKey('Z');
 
         this.idleState = new IdleState(this);
         this.runState = new RunState(this);
@@ -70,19 +73,48 @@ class Player extends Actor
     {
         this.currentState.OnCollisionSolved(result);
 
+        if (this.speedXDir < 0)
+        {
+            this.sprite.flipX = true;
+        }
+        else if (this.speedXDir > 0)
+        {
+            this.sprite.flipX = false;
+        }
+
         if (!this.holdsKey && this.inputHold.isDown && this.key.globalHitbox.Intersects(this.globalHitbox))
         {
             this.key.state = KEY_GRABBED;
+            this.localHitbox.width = this.hitboxWidth + this.key.localHitbox.width - 2;
         }
 
         if (this.holdsKey)
         {
-            this.key.posX = this.globalHitbox.right;
+            if (this.sprite.flipX)
+            {
+                this.key.sprite.flipX = true;
+                this.key.sprite.setOrigin(0.5, 0);
+
+                this.localHitbox.x = this.hitboxX - (this.key.localHitbox.width - 2);
+            }
+            else if (!this.sprite.flipX)
+            {
+                this.key.sprite.flipX = false;
+                this.key.sprite.setOrigin(0, 0);
+
+                this.localHitbox.x = this.hitboxX;
+            }
+
+            this.key.posX = !this.sprite.flipX ? this.globalHitbox.x + this.hitboxWidth : this.globalHitbox.x;
             this.key.posY = this.posY;
 
             if (this.inputHold.isUp)
             {
                 this.key.state = KEY_INAIR;
+
+                // Restore original hitbox
+                this.localHitbox.x = this.hitboxX;
+                this.localHitbox.width = this.hitboxWidth;
             }
         }
     }

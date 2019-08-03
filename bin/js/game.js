@@ -44,6 +44,11 @@ var Actor = /** @class */ (function () {
         configurable: true
     });
     ;
+    Object.defineProperty(Actor.prototype, "nextHitbox", {
+        get: function () { return new Rectangle(this.nextPosX + this.localHitbox.x, this.nextPosY + this.localHitbox.y, this.localHitbox.width, this.localHitbox.height); },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(Actor.prototype, "speedXDir", {
         get: function () { return this.speedX == 0 ? 0 : (this.speedX > 0 ? 1 : -1); },
         enumerable: true,
@@ -95,12 +100,15 @@ var GameScene = /** @class */ (function (_super) {
         //     return;
         // }
         var result = new CollisionResult();
-        var gridX = Math.floor(actor.nextPosX / 16);
-        var gridY = Math.floor(actor.nextPosY / 16);
+        var hitbox = actor.nextHitbox;
+        var gridX = Math.floor((hitbox.x - 1) / 16);
+        var gridY = Math.floor((hitbox.y - 1) / 16);
+        var endX = Math.floor((hitbox.right + 2) / 16);
+        var endY = Math.floor((hitbox.bottom + 2) / 16);
         // X
         actor.posX += actor.speedX * (1 / 60);
-        for (var x = gridX; x <= gridX + 1; x++) {
-            for (var y = gridY; y <= gridY + 1; y++) {
+        for (var x = gridX; x <= gridX + endX; x++) {
+            for (var y = gridY; y <= gridY + endY; y++) {
                 var i = x % 20 + y * 20;
                 result.tiles.push(this.tiles[i]);
                 if (this.tiles[i] == undefined || !this.tiles[i].solid || !this.tiles[i].hitbox.Intersects(actor.globalHitbox)) {
@@ -118,8 +126,8 @@ var GameScene = /** @class */ (function (_super) {
         }
         // Y
         actor.posY += actor.speedY * (1 / 60);
-        for (var x = gridX; x <= gridX + 1; x++) {
-            for (var y = gridY; y <= gridY + 1; y++) {
+        for (var x = gridX; x <= gridX + endX; x++) {
+            for (var y = gridY; y <= gridY + endY; y++) {
                 var i = x % 20 + y * 20;
                 if (this.tiles[i] == undefined || !this.tiles[i].solid || !this.tiles[i].hitbox.Intersects(actor.globalHitbox)) {
                     //if (x == 9) console.log(this.tiles[i].hitbox.Intersects(actor.globalHitbox));
@@ -136,12 +144,6 @@ var GameScene = /** @class */ (function (_super) {
             }
         }
         actor.OnCollisionSolved(result);
-        if (actor.speedXDir < 0) {
-            actor.sprite.flipX = true;
-        }
-        else if (actor.speedXDir > 0) {
-            actor.sprite.flipX = false;
-        }
     };
     GameScene.prototype.draw = function () {
     };
@@ -291,16 +293,18 @@ var Player = /** @class */ (function (_super) {
     __extends(Player, _super);
     function Player(scene) {
         var _this = _super.call(this) || this;
+        _this.hitboxWidth = 10;
+        _this.hitboxX = 3;
         _this.scene = scene;
         _this.sprite = _this.scene.add.sprite(16, 320 - 48, 'character');
         _this.sprite.setOrigin(0, 0);
-        _this.localHitbox = new Rectangle(3, 1, 10, 15);
+        _this.localHitbox = new Rectangle(_this.hitboxX, 1, _this.hitboxWidth, 15);
         _this.inputUp = _this.scene.input.keyboard.addKey('up');
         _this.inputDown = _this.scene.input.keyboard.addKey('down');
         _this.inputLeft = _this.scene.input.keyboard.addKey('left');
         _this.inputRight = _this.scene.input.keyboard.addKey('right');
-        _this.inputJump = _this.scene.input.keyboard.addKey('Z');
-        _this.inputHold = _this.scene.input.keyboard.addKey('X');
+        _this.inputJump = _this.scene.input.keyboard.addKey('Space');
+        _this.inputHold = _this.scene.input.keyboard.addKey('Z');
         _this.idleState = new IdleState(_this);
         _this.runState = new RunState(_this);
         _this.jumpState = new JumpState(_this);
@@ -326,26 +330,46 @@ var Player = /** @class */ (function (_super) {
     };
     Player.prototype.OnCollisionSolved = function (result) {
         this.currentState.OnCollisionSolved(result);
+        if (this.speedXDir < 0) {
+            this.sprite.flipX = true;
+        }
+        else if (this.speedXDir > 0) {
+            this.sprite.flipX = false;
+        }
         if (!this.holdsKey && this.inputHold.isDown && this.key.globalHitbox.Intersects(this.globalHitbox)) {
             this.key.state = KEY_GRABBED;
+            this.localHitbox.width = this.hitboxWidth + this.key.localHitbox.width - 2;
         }
         if (this.holdsKey) {
-            this.key.posX = this.globalHitbox.right;
+            if (this.sprite.flipX) {
+                this.key.sprite.flipX = true;
+                this.key.sprite.setOrigin(0.5, 0);
+                this.localHitbox.x = this.hitboxX - (this.key.localHitbox.width - 2);
+            }
+            else if (!this.sprite.flipX) {
+                this.key.sprite.flipX = false;
+                this.key.sprite.setOrigin(0, 0);
+                this.localHitbox.x = this.hitboxX;
+            }
+            this.key.posX = !this.sprite.flipX ? this.globalHitbox.x + this.hitboxWidth : this.globalHitbox.x;
             this.key.posY = this.posY;
             if (this.inputHold.isUp) {
                 this.key.state = KEY_INAIR;
+                // Restore original hitbox
+                this.localHitbox.x = this.hitboxX;
+                this.localHitbox.width = this.hitboxWidth;
             }
         }
     };
     Player.prototype.UpdateMoveControls = function () {
         if (this.inputLeft.isDown) {
-            if (this.speedX > -100) {
-                this.speedX = Math.max(this.speedX - 20, -100);
+            if (this.speedX > -80) {
+                this.speedX = Math.max(this.speedX - 20, -80);
             }
         }
         else if (this.inputRight.isDown) {
-            if (this.speedX < 100) {
-                this.speedX = Math.min(this.speedX + 20, 100);
+            if (this.speedX < 80) {
+                this.speedX = Math.min(this.speedX + 20, 80);
             }
         }
         else {

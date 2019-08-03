@@ -11,6 +11,8 @@ class Actor
     public get nextPosX(): number { return this.sprite.x + this.speedX * (1/60); };
     public get nextPosY(): number { return this.sprite.y + this.speedY * (1/60); };
 
+    public get nextHitbox(): Rectangle { return new Rectangle(this.nextPosX + this.localHitbox.x, this.nextPosY + this.localHitbox.y, this.localHitbox.width, this.localHitbox.height); }
+
     public speedX: number = 0;
     public speedY: number = 0;
 
