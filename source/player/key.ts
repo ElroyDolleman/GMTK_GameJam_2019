@@ -13,12 +13,10 @@ class Key extends Actor
     
     public player: Player;
 
-    constructor(player: Player)
+    constructor()
     {
         super();
         Key.instance = this;
-
-        this.player = player;
 
         this.sprite = GameScene.instance.add.sprite(48, 320-64, 'character', 8);
         this.sprite.setOrigin(0, 0);
@@ -43,13 +41,23 @@ class Key extends Actor
 
     public BeforeCollisionCheck(tiles: Tile[])
     {
+        let used = false;
+
         for (let i = 0; i < tiles.length; i++)
         {
             if (tiles[i] != undefined && tiles[i].tileType == TILETYPE_KEYBLOCK && tiles[i].hitbox.Intersects(this.globalHitbox))
             {
                 tiles[i].Unlock();
+                used = true;
             }
         }
+
+        if (used) this.Used();
+    }
+
+    public Used()
+    {
+        this.SetActive(false);
     }
 
     public OnCollisionSolved(result: CollisionResult)

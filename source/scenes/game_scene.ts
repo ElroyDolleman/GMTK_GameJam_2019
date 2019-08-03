@@ -8,6 +8,8 @@ class GameScene extends Phaser.Scene
     public keySpawn: Phaser.Geom.Point;
     public playerSpawn: Phaser.Geom.Point;
 
+    public prevPlayerHitbox: Rectangle;
+
     public tiles: Tile[];
 
     constructor()
@@ -29,9 +31,9 @@ class GameScene extends Phaser.Scene
     {
         this.tiles = LevelLoader.load(LEVEL01);
 
+        this.key = new Key();
         this.player = new Player(this);
-        this.key = new Key(this.player);
-        this.player.key = this.key;
+        this.key.player = this.player;
 
         this.key.posX = this.keySpawn.x;
         this.key.posY = this.keySpawn.y;
@@ -42,8 +44,10 @@ class GameScene extends Phaser.Scene
 
     update()
     {
-        this.player.Update();
-        this.key.Update();
+        if (this.player.active) this.player.Update();
+        if (this.key.active) this.key.Update();
+
+        this.prevPlayerHitbox = this.player.globalHitbox;
 
         this.moveActor(this.player);
         this.moveActor(this.key, this.key.state != KEY_GRABBED);
@@ -51,10 +55,7 @@ class GameScene extends Phaser.Scene
 
     moveActor(actor: Actor, solveCollision: boolean = true)
     {
-        // if (actor.speedX == 0 && actor.speedY == 0)
-        // {
-        //     return;
-        // }
+        if (!actor.active) return;
 
         let result = new CollisionResult();
         let hitbox = actor.nextHitbox;

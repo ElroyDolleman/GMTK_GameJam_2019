@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var Actor = /** @class */ (function () {
     function Actor() {
+        this.active = true;
         this.speedX = 0;
         this.speedY = 0;
     }
@@ -68,6 +69,10 @@ var Actor = /** @class */ (function () {
     };
     Actor.prototype.OnCollisionSolved = function (result) {
     };
+    Actor.prototype.SetActive = function (active) {
+        this.active = active;
+        this.sprite.setVisible(active);
+    };
     return Actor;
 }());
 var GameScene = /** @class */ (function (_super) {
@@ -84,26 +89,27 @@ var GameScene = /** @class */ (function (_super) {
     };
     GameScene.prototype.create = function () {
         this.tiles = LevelLoader.load(LEVEL01);
+        this.key = new Key();
         this.player = new Player(this);
-        this.key = new Key(this.player);
-        this.player.key = this.key;
+        this.key.player = this.player;
         this.key.posX = this.keySpawn.x;
         this.key.posY = this.keySpawn.y;
         this.player.posX = this.playerSpawn.x;
         this.player.posY = this.playerSpawn.y;
     };
     GameScene.prototype.update = function () {
-        this.player.Update();
-        this.key.Update();
+        if (this.player.active)
+            this.player.Update();
+        if (this.key.active)
+            this.key.Update();
+        this.prevPlayerHitbox = this.player.globalHitbox;
         this.moveActor(this.player);
         this.moveActor(this.key, this.key.state != KEY_GRABBED);
     };
     GameScene.prototype.moveActor = function (actor, solveCollision) {
-        // if (actor.speedX == 0 && actor.speedY == 0)
-        // {
-        //     return;
-        // }
         if (solveCollision === void 0) { solveCollision = true; }
+        if (!actor.active)
+            return;
         var result = new CollisionResult();
         var hitbox = actor.nextHitbox;
         var gridX = Math.floor((hitbox.x - 1) / 16);
@@ -215,7 +221,8 @@ var Rectangle = /** @class */ (function () {
     };
     return Rectangle;
 }());
-var LEVEL01 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 4, 18, 18, 18, 18, 18, 5, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 17, 11, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 9, 11, 0, 0, 0, 0, 0, 21, 11, 0, 0, 0, 0, 1, 3, 0, 0, 9, 11, 0, 17, 19, 0, 0, 0, 0, 0, 26, 11, 0, 7, 0, 0, 9, 11, 0, 0, 9, 11, 6, 0, 0, 0, 0, 25, 0, 0, 29, 12, 2, 2, 2, 2, 13, 12, 2, 2, 13, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+var LEVEL01 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 4, 18, 18, 18, 18, 18, 5, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 25, 0, 0, 0, 0, 17, 11, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 9, 11, 0, 0, 0, 0, 0, 20, 11, 0, 0, 0, 0, 1, 3, 0, 0, 9, 11, 0, 17, 19, 0, 0, 0, 0, 0, 28, 11, 0, 7, 0, 0, 9, 11, 0, 0, 9, 11, 6, 0, 0, 0, 0, 1, 2, 2, 2, 12, 2, 2, 2, 2, 13, 12, 2, 2, 13, 12, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+var LEVEL02 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 0, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 26, 2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 29, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 29, 0, 0, 1, 10, 10, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LevelLoader = /** @class */ (function () {
     function LevelLoader() {
     }
@@ -298,7 +305,7 @@ var Tile = /** @class */ (function () {
             if (GameScene.instance.tiles[index].tileType == TILETYPE_KEYBLOCK) {
                 GameScene.instance.tiles[index].Unlock();
             }
-            this.connections.splice(0);
+            this.connections.splice(0, 1);
         }
     };
     return Tile;
@@ -308,13 +315,12 @@ var KEY_INAIR = 1;
 var KEY_GRABBED = 2;
 var Key = /** @class */ (function (_super) {
     __extends(Key, _super);
-    function Key(player) {
+    function Key() {
         var _this = _super.call(this) || this;
         _this.gravity = 10;
         _this.maxFallSpeed = 240;
         _this.state = KEY_GROUNDED;
         Key.instance = _this;
-        _this.player = player;
         _this.sprite = GameScene.instance.add.sprite(48, 320 - 64, 'character', 8);
         _this.sprite.setOrigin(0, 0);
         _this.localHitbox = new Rectangle(0, 0, 8, 16);
@@ -331,11 +337,18 @@ var Key = /** @class */ (function (_super) {
         }
     };
     Key.prototype.BeforeCollisionCheck = function (tiles) {
+        var used = false;
         for (var i = 0; i < tiles.length; i++) {
             if (tiles[i] != undefined && tiles[i].tileType == TILETYPE_KEYBLOCK && tiles[i].hitbox.Intersects(this.globalHitbox)) {
                 tiles[i].Unlock();
+                used = true;
             }
         }
+        if (used)
+            this.Used();
+    };
+    Key.prototype.Used = function () {
+        this.SetActive(false);
     };
     Key.prototype.OnCollisionSolved = function (result) {
         if (result.onBottom) {
@@ -377,6 +390,7 @@ var Player = /** @class */ (function (_super) {
         _this.hitboxWidth = 10;
         _this.hitboxX = 3;
         _this.scene = scene;
+        _this.key = GameScene.instance.key;
         _this.sprite = _this.scene.add.sprite(16, 320 - 48, 'character');
         _this.sprite.setOrigin(0, 0);
         _this.localHitbox = new Rectangle(_this.hitboxX, 1, _this.hitboxWidth, 15);
@@ -416,6 +430,12 @@ var Player = /** @class */ (function (_super) {
         }
         else if (this.speedXDir > 0) {
             this.sprite.flipX = false;
+        }
+        if (!this.key.active) {
+            if (this.isHoldingKey) {
+                this.ReleaseKey();
+            }
+            return;
         }
         var releaseKey = false;
         if (!this.isHoldingKey && Phaser.Input.Keyboard.JustDown(this.inputGrab) && this.key.globalHitbox.Intersects(this.globalHitbox)) {
@@ -548,6 +568,15 @@ var FallState = /** @class */ (function (_super) {
     };
     FallState.prototype.OnCollisionSolved = function (result) {
         _super.prototype.OnCollisionSolved.call(this, result);
+        if (this.player.currentState == this)
+            // Check if you land on the key
+            if (this.player.key.active &&
+                GameScene.instance.prevPlayerHitbox.bottom < this.player.key.posY &&
+                this.player.globalHitbox.bottom > this.player.key.posY &&
+                this.player.globalHitbox.Intersects(this.player.key.globalHitbox)) {
+                this.player.posY = this.player.key.posY - this.player.localHitbox.height - this.player.localHitbox.y;
+                this.Land();
+            }
     };
     return FallState;
 }(AirborneState));
@@ -565,13 +594,20 @@ var GroundedState = /** @class */ (function (_super) {
         }
     };
     GroundedState.prototype.OnCollisionSolved = function (result) {
+        var hitbox = this.player.globalHitbox;
         for (var i = 0; i < result.tiles.length; i++) {
             if (result.tiles[i] == undefined || !result.tiles[i].solid)
                 continue;
-            var hitbox = this.player.globalHitbox;
             if (result.tiles[i].hitbox.y == hitbox.bottom && hitbox.right > result.tiles[i].hitbox.x && hitbox.x < result.tiles[i].hitbox.right) {
                 return;
             }
+        }
+        // If the key is also not under the player, fall
+        if (this.player.key.active && !this.player.isHoldingKey && this.player.key.globalHitbox.y == hitbox.bottom && hitbox.right > this.player.key.globalHitbox.x && hitbox.x < this.player.key.globalHitbox.right) {
+            if (!Phaser.Input.Keyboard.JustDown(this.player.inputGrab)) {
+                return;
+            }
+            this.player.GrabKey();
         }
         this.player.ChangeState(this.player.fallState);
     };
@@ -584,7 +620,7 @@ var IdleState = /** @class */ (function (_super) {
         return _super.call(this, player) || this;
     }
     IdleState.prototype.OnEnter = function () {
-        this.player.sprite.setFrame(0);
+        this.player.sprite.setFrame(!this.player.isHoldingKey ? 0 : 6);
     };
     IdleState.prototype.Update = function () {
         _super.prototype.Update.call(this);
@@ -626,7 +662,7 @@ var RunState = /** @class */ (function (_super) {
         return _super.call(this, player) || this;
     }
     RunState.prototype.OnEnter = function () {
-        this.curFrame = 1;
+        this.curFrame = !this.player.isHoldingKey ? 0 : 7;
         this.animTimer = 0;
         this.player.sprite.setFrame(this.curFrame);
     };
@@ -643,7 +679,14 @@ var RunState = /** @class */ (function (_super) {
             this.animTimer += (1 / 60);
             if (this.animTimer > 0.2 * (100 / Math.abs(this.player.speedX))) {
                 this.animTimer = 0;
-                this.curFrame = this.curFrame == 1 ? 0 : 1;
+                if (this.curFrame == 1)
+                    this.curFrame = 0;
+                else if (this.curFrame == 0)
+                    this.curFrame = 1;
+                else if (this.curFrame == 6)
+                    this.curFrame = 7;
+                else if (this.curFrame == 7)
+                    this.curFrame = 6;
                 this.player.sprite.setFrame(this.curFrame);
             }
         }

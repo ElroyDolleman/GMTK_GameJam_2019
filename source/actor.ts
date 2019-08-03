@@ -1,5 +1,7 @@
 class Actor
 {
+    public active: boolean = true;
+
     public sprite: Phaser.GameObjects.Sprite;
 
     public get posX(): number { return this.sprite.x; };
@@ -35,5 +37,11 @@ class Actor
     public OnCollisionSolved(result: CollisionResult)
     {
 
+    }
+
+    public SetActive(active: boolean)
+    {
+        this.active = active;
+        this.sprite.setVisible(active);
     }
 }

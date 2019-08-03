@@ -51,7 +51,7 @@ class Tile
                 GameScene.instance.tiles[index].Unlock();
             }
 
-            this.connections.splice(0);
+            this.connections.splice(0, 1);
         }
     }
 }

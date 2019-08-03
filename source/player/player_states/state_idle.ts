@@ -9,7 +9,7 @@ class IdleState extends GroundedState
 
     public OnEnter()
     {
-        this.player.sprite.setFrame(0);
+        this.player.sprite.setFrame(!this.player.isHoldingKey ? 0 : 6);
     }
 
     public Update()

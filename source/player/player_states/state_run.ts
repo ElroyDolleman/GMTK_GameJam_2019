@@ -12,7 +12,7 @@ class RunState extends GroundedState
 
     public OnEnter()
     {
-        this.curFrame = 1;
+        this.curFrame = !this.player.isHoldingKey ? 0 : 7;
         this.animTimer = 0;
 
         this.player.sprite.setFrame(this.curFrame);
@@ -40,7 +40,12 @@ class RunState extends GroundedState
             if (this.animTimer > 0.2 * (100 / Math.abs(this.player.speedX)))
             {
                 this.animTimer = 0;
-                this.curFrame = this.curFrame == 1 ? 0 : 1;
+
+                if (this.curFrame == 1) this.curFrame = 0;
+                else if (this.curFrame == 0) this.curFrame = 1;
+                else if (this.curFrame == 6) this.curFrame = 7;
+                else if (this.curFrame == 7) this.curFrame = 6;
+
                 this.player.sprite.setFrame(this.curFrame);
             }
         }

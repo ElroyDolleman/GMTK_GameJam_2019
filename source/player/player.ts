@@ -45,6 +45,7 @@ class Player extends Actor
         super();
 
         this.scene = scene;
+        this.key = GameScene.instance.key;
 
         this.sprite = this.scene.add.sprite(16, 320-48, 'character');
         this.sprite.setOrigin(0, 0);
@@ -95,6 +96,16 @@ class Player extends Actor
         else if (this.speedXDir > 0)
         {
             this.sprite.flipX = false;
+        }
+
+        if (!this.key.active)
+        {
+            if (this.isHoldingKey)
+            {
+                this.ReleaseKey();
+            }
+
+            return;
         }
 
         let releaseKey = false;
