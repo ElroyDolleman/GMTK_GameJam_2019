@@ -44,7 +44,7 @@ class Tile
 
         while(this.connections.length > 0)
         {
-            let index = this.connections[0].x % 20 + this.connections[0].y * 20;
+            let index = this.connections[0].x % 21 + this.connections[0].y * 21;
 
             if (GameScene.instance.tiles[index].tileType == TILETYPE_KEYBLOCK)
             {

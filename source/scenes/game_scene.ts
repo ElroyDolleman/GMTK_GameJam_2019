@@ -1,5 +1,10 @@
 class GameScene extends Phaser.Scene
 {
+    public levelOrder = [LEVEL01, LEVEL02];
+    public currentLevel = 0;
+
+    public inputReset: Phaser.Input.Keyboard.Key;
+
     public static instance: GameScene;
 
     public player: Player;
@@ -21,14 +26,14 @@ class GameScene extends Phaser.Scene
 
     preload()
     {
-        console.log("Hello World!");
-
         this.load.spritesheet('character', 'assets/character.png', { frameWidth: 16, frameHeight: 16 });
         this.load.spritesheet('tilessheet', 'assets/tilessheet.png', { frameWidth: 16, frameHeight: 16 });
     }
 
     create()
     {
+        this.inputReset = this.input.keyboard.addKey('R');
+        
         this.tiles = LevelLoader.load(LEVEL01);
 
         this.key = new Key();
@@ -42,6 +47,37 @@ class GameScene extends Phaser.Scene
         this.player.posY = this.playerSpawn.y;
     }
 
+    nextLevel()
+    {
+        LevelLoader.unload();
+
+        this.currentLevel = Math.min(this.currentLevel + 1, this.levelOrder.length - 1);
+
+        this.tiles = LevelLoader.load(this.levelOrder[this.currentLevel]);
+        
+        this.resetKeyAndPlayer();
+    }
+
+    reset()
+    {
+        LevelLoader.reload();
+        this.resetKeyAndPlayer();
+    }
+
+    resetKeyAndPlayer()
+    {
+        this.key.SetActive(true);
+        this.key.posX = this.keySpawn.x;
+        this.key.posY = this.keySpawn.y;
+
+        this.player.posX = this.playerSpawn.x;
+        this.player.posY = this.playerSpawn.y;
+        this.player.speedX = 0;
+        this.player.speedY = 0;
+        this.player.sprite.flipX = false;
+        this.player.ChangeState(this.player.idleState);
+    }
+
     update()
     {
         if (this.player.active) this.player.Update();
@@ -51,6 +87,18 @@ class GameScene extends Phaser.Scene
 
         this.moveActor(this.player);
         this.moveActor(this.key, this.key.state != KEY_GRABBED);
+
+        if (this.player.posX < 0) this.player.posX = 0;
+        if (this.key.posX < 0) this.key.posX = 0;
+
+        if (this.player.posX > 321 + this.player.localHitbox.width)
+        {
+            this.nextLevel();
+        }
+        else if (Phaser.Input.Keyboard.JustDown(this.inputReset))
+        {
+            this.reset();
+        }
     }
 
     moveActor(actor: Actor, solveCollision: boolean = true)
@@ -70,7 +118,7 @@ class GameScene extends Phaser.Scene
         {
             for (let y = gridY; y <= gridY + endY; y++)
             {
-                result.tiles.push(this.tiles[x % 20 + y * 20]);
+                result.tiles.push(this.tiles[x % 21 + y * 21]);
             }
         }
 
@@ -85,7 +133,7 @@ class GameScene extends Phaser.Scene
         {
             for (let y = gridY; y <= gridY + endY; y++)
             {
-                let i = x % 20 + y * 20;
+                let i = x % 21 + y * 21;
 
                 if (this.tiles[i] == undefined || !this.tiles[i].solid || !this.tiles[i].hitbox.Intersects(actor.globalHitbox))
                 {
@@ -113,7 +161,7 @@ class GameScene extends Phaser.Scene
         {
             for (let y = gridY; y <= gridY + endY; y++)
             {
-                let i = x % 20 + y * 20;
+                let i = x % 21 + y * 21;
 
                 if (this.tiles[i] == undefined || !this.tiles[i].solid || !this.tiles[i].hitbox.Intersects(actor.globalHitbox))
                 {
