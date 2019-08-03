@@ -36,6 +36,8 @@ class GameScene extends Phaser.Scene
 
     moveActor(actor: Actor)
     {
+        let result = new CollisionResult();
+
         let gridX = Math.floor(actor.nextPosX / 16);
         let gridY = Math.floor(actor.nextPosY / 16);
 
@@ -48,21 +50,24 @@ class GameScene extends Phaser.Scene
             {
                 let i = x % 20 + y * 20;
 
+                result.tiles.push(this.tiles[i]);
+
                 if (this.tiles[i] == undefined || !this.tiles[i].solid || !this.tiles[i].hitbox.Intersects(actor.globalHitbox))
                 {
-                    //if (x == 9) console.log(this.tiles[i].hitbox.Intersects(actor.globalHitbox));
                     continue;
                 }
 
                 if (actor.globalHitbox.x < this.tiles[i].hitbox.x)
                 {
                     console.log("on right", x, y);
+                    result.onRight = true;
                     actor.posX = this.tiles[i].hitbox.x - (actor.localHitbox.width + actor.localHitbox.x);
                 }
 
                 else if (actor.globalHitbox.right > this.tiles[i].hitbox.right)
                 {
                     console.log("on left", x, y);
+                    result.onLeft = true;
                     actor.posX = this.tiles[i].hitbox.right - actor.localHitbox.x;
                 }
             }
@@ -86,16 +91,20 @@ class GameScene extends Phaser.Scene
                 if (actor.globalHitbox.y < this.tiles[i].hitbox.y)
                 {
                     console.log("on bottom", x, y);
+                    result.onBottom = true;
                     actor.posY = this.tiles[i].hitbox.y - (actor.localHitbox.height + actor.localHitbox.y);
                 }
 
                 else if (actor.globalHitbox.bottom > this.tiles[i].hitbox.bottom)
                 {
                     console.log("on top", x, y);
+                    result.onTop = true;
                     actor.posY = this.tiles[i].hitbox.bottom - actor.localHitbox.y;
                 }
             }
         }
+
+        actor.OnCollisionSolved(result);
 
         if (actor.speedXDir < 0)
         {

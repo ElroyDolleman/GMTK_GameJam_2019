@@ -17,7 +17,7 @@ class BaseState
 
     }
 
-    public OnCollisionSolved()
+    public OnCollisionSolved(result: CollisionResult)
     {
 
     }

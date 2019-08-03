@@ -46,8 +46,8 @@ class RunState extends GroundedState
         }
     }
 
-    public OnCollisionSolved()
+    public OnCollisionSolved(result: CollisionResult)
     {
-
+        super.OnCollisionSolved(result);
     }
 }

@@ -29,8 +29,27 @@ class AirborneState extends BaseState
         }
     }
 
-    public OnCollisionSolved()
+    public OnCollisionSolved(result: CollisionResult)
     {
-        
+        if (result.onBottom)
+        {
+            this.Land();
+        }
+
+        if (result.onTop)
+        {
+            this.HeadBonk();
+        }
+    }
+
+    public Land()
+    {
+        this.player.speedY = 0;
+        this.player.ChangeState(this.player.speedX == 0 ? this.player.idleState : this.player.runState);
+    }
+
+    public HeadBonk()
+    {
+        this.player.speedY = 0;
     }
 }

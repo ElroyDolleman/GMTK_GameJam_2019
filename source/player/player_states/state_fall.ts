@@ -17,8 +17,8 @@ class FallState extends AirborneState
         super.Update();
     }
 
-    public OnCollisionSolved()
+    public OnCollisionSolved(result: CollisionResult)
     {
-
+        super.OnCollisionSolved(result);
     }
 }

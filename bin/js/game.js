@@ -59,6 +59,8 @@ var Actor = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Actor.prototype.OnCollisionSolved = function (result) {
+    };
     return Actor;
 }());
 var GameScene = /** @class */ (function (_super) {
@@ -82,6 +84,7 @@ var GameScene = /** @class */ (function (_super) {
         this.moveActor(this.player);
     };
     GameScene.prototype.moveActor = function (actor) {
+        var result = new CollisionResult();
         var gridX = Math.floor(actor.nextPosX / 16);
         var gridY = Math.floor(actor.nextPosY / 16);
         // X
@@ -89,16 +92,18 @@ var GameScene = /** @class */ (function (_super) {
         for (var x = gridX; x <= gridX + 1; x++) {
             for (var y = gridY; y <= gridY + 1; y++) {
                 var i = x % 20 + y * 20;
+                result.tiles.push(this.tiles[i]);
                 if (this.tiles[i] == undefined || !this.tiles[i].solid || !this.tiles[i].hitbox.Intersects(actor.globalHitbox)) {
-                    //if (x == 9) console.log(this.tiles[i].hitbox.Intersects(actor.globalHitbox));
                     continue;
                 }
                 if (actor.globalHitbox.x < this.tiles[i].hitbox.x) {
                     console.log("on right", x, y);
+                    result.onRight = true;
                     actor.posX = this.tiles[i].hitbox.x - (actor.localHitbox.width + actor.localHitbox.x);
                 }
                 else if (actor.globalHitbox.right > this.tiles[i].hitbox.right) {
                     console.log("on left", x, y);
+                    result.onLeft = true;
                     actor.posX = this.tiles[i].hitbox.right - actor.localHitbox.x;
                 }
             }
@@ -114,14 +119,17 @@ var GameScene = /** @class */ (function (_super) {
                 }
                 if (actor.globalHitbox.y < this.tiles[i].hitbox.y) {
                     console.log("on bottom", x, y);
+                    result.onBottom = true;
                     actor.posY = this.tiles[i].hitbox.y - (actor.localHitbox.height + actor.localHitbox.y);
                 }
                 else if (actor.globalHitbox.bottom > this.tiles[i].hitbox.bottom) {
                     console.log("on top", x, y);
+                    result.onTop = true;
                     actor.posY = this.tiles[i].hitbox.bottom - actor.localHitbox.y;
                 }
             }
         }
+        actor.OnCollisionSolved(result);
         if (actor.speedXDir < 0) {
             actor.sprite.flipX = true;
         }
@@ -148,6 +156,20 @@ var config = {
     scene: [GameScene],
 };
 var game = new Phaser.Game(config);
+var CollisionResult = /** @class */ (function () {
+    function CollisionResult() {
+        this.onTop = false;
+        this.onLeft = false;
+        this.onRight = false;
+        this.onBottom = false;
+        this.tiles = [];
+        // this.onTop = onTop;
+        // this.onLeft = onLeft;
+        // this.onRight = onRight;
+        // this.onBottom = onBottom;
+    }
+    return CollisionResult;
+}());
 var Rectangle = /** @class */ (function () {
     function Rectangle(x, y, width, height) {
         this.x = x;
@@ -238,6 +260,9 @@ var Player = /** @class */ (function (_super) {
     Player.prototype.Update = function () {
         this.currentState.Update();
     };
+    Player.prototype.OnCollisionSolved = function (result) {
+        this.currentState.OnCollisionSolved(result);
+    };
     Player.prototype.UpdateMoveControls = function () {
         if (this.inputLeft.isDown) {
             if (this.speedX > -100) {
@@ -268,7 +293,7 @@ var BaseState = /** @class */ (function () {
     };
     BaseState.prototype.Update = function () {
     };
-    BaseState.prototype.OnCollisionSolved = function () {
+    BaseState.prototype.OnCollisionSolved = function (result) {
     };
     return BaseState;
 }());
@@ -292,7 +317,20 @@ var AirborneState = /** @class */ (function (_super) {
             this.player.speedY = this.maxFallSpeed;
         }
     };
-    AirborneState.prototype.OnCollisionSolved = function () {
+    AirborneState.prototype.OnCollisionSolved = function (result) {
+        if (result.onBottom) {
+            this.Land();
+        }
+        if (result.onTop) {
+            this.HeadBonk();
+        }
+    };
+    AirborneState.prototype.Land = function () {
+        this.player.speedY = 0;
+        this.player.ChangeState(this.player.speedX == 0 ? this.player.idleState : this.player.runState);
+    };
+    AirborneState.prototype.HeadBonk = function () {
+        this.player.speedY = 0;
     };
     return AirborneState;
 }(BaseState));
@@ -308,7 +346,8 @@ var FallState = /** @class */ (function (_super) {
     FallState.prototype.Update = function () {
         _super.prototype.Update.call(this);
     };
-    FallState.prototype.OnCollisionSolved = function () {
+    FallState.prototype.OnCollisionSolved = function (result) {
+        _super.prototype.OnCollisionSolved.call(this, result);
     };
     return FallState;
 }(AirborneState));
@@ -325,7 +364,16 @@ var GroundedState = /** @class */ (function (_super) {
             this.player.ChangeState(this.player.jumpState);
         }
     };
-    GroundedState.prototype.OnCollisionSolved = function () {
+    GroundedState.prototype.OnCollisionSolved = function (result) {
+        for (var i = 0; i < result.tiles.length; i++) {
+            if (!result.tiles[i].solid)
+                continue;
+            var hitbox = this.player.globalHitbox;
+            if (result.tiles[i].hitbox.y == hitbox.bottom && hitbox.right > result.tiles[i].hitbox.x && hitbox.x < result.tiles[i].hitbox.right) {
+                return;
+            }
+        }
+        this.player.ChangeState(this.player.fallState);
     };
     return GroundedState;
 }(BaseState));
@@ -345,7 +393,8 @@ var IdleState = /** @class */ (function (_super) {
             this.player.ChangeState(this.player.runState);
         }
     };
-    IdleState.prototype.OnCollisionSolved = function () {
+    IdleState.prototype.OnCollisionSolved = function (result) {
+        _super.prototype.OnCollisionSolved.call(this, result);
     };
     return IdleState;
 }(GroundedState));
@@ -365,7 +414,8 @@ var JumpState = /** @class */ (function (_super) {
             this.player.ChangeState(this.player.fallState);
         }
     };
-    JumpState.prototype.OnCollisionSolved = function () {
+    JumpState.prototype.OnCollisionSolved = function (result) {
+        _super.prototype.OnCollisionSolved.call(this, result);
     };
     return JumpState;
 }(AirborneState));
@@ -398,7 +448,8 @@ var RunState = /** @class */ (function (_super) {
             }
         }
     };
-    RunState.prototype.OnCollisionSolved = function () {
+    RunState.prototype.OnCollisionSolved = function (result) {
+        _super.prototype.OnCollisionSolved.call(this, result);
     };
     return RunState;
 }(GroundedState));

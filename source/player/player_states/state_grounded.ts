@@ -20,8 +20,20 @@ class GroundedState extends BaseState
         }
     }
 
-    public OnCollisionSolved()
+    public OnCollisionSolved(result: CollisionResult)
     {
+        for (let i = 0; i < result.tiles.length; i++)
+        {
+            if (!result.tiles[i].solid) continue;
 
+            let hitbox = this.player.globalHitbox;
+
+            if (result.tiles[i].hitbox.y == hitbox.bottom && hitbox.right > result.tiles[i].hitbox.x && hitbox.x < result.tiles[i].hitbox.right)
+            {
+                return;
+            }
+        }
+
+        this.player.ChangeState(this.player.fallState);
     }
 }

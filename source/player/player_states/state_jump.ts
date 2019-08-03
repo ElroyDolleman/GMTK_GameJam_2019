@@ -23,8 +23,8 @@ class JumpState extends AirborneState
         }
     }
 
-    public OnCollisionSolved()
+    public OnCollisionSolved(result: CollisionResult)
     {
-
+        super.OnCollisionSolved(result);
     }
 }

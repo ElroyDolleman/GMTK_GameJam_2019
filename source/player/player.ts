@@ -51,6 +51,11 @@ class Player extends Actor
         this.currentState.Update();
     }
 
+    public OnCollisionSolved(result: CollisionResult)
+    {
+        this.currentState.OnCollisionSolved(result);
+    }
+
     public UpdateMoveControls()
     {
         if (this.inputLeft.isDown)

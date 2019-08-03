@@ -24,4 +24,9 @@ class Actor
     {
 
     }
+
+    public OnCollisionSolved(result: CollisionResult)
+    {
+
+    }
 }
