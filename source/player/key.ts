@@ -45,7 +45,9 @@ class Key extends Actor
 
         for (let i = 0; i < tiles.length; i++)
         {
-            if (tiles[i] != undefined && tiles[i].tileType == TILETYPE_KEYBLOCK && tiles[i].hitbox.Intersects(this.globalHitbox))
+            if (tiles[i] == undefined) continue;
+
+            if ((tiles[i].tileType == TILETYPE_KEYBLOCK || tiles[i].tileType == TILETYPE_TRANSLUCENT_KEYBLOCK) && tiles[i].hitbox.Intersects(this.globalHitbox))
             {
                 tiles[i].Unlock();
                 used = true;
@@ -77,7 +79,7 @@ class Key extends Actor
         {
             if (result.tiles[i] == undefined || (!result.tiles[i].solid && !result.tiles[i].semisolid)) continue;
 
-            let hitbox = this.player.globalHitbox;
+            let hitbox = this.globalHitbox;
 
             if (result.tiles[i].hitbox.y == hitbox.bottom && hitbox.right > result.tiles[i].hitbox.x && hitbox.x < result.tiles[i].hitbox.right)
             {

@@ -157,6 +157,7 @@ class Player extends Actor
     public ReleaseKey()
     {
         this.key.state = KEY_INAIR;
+        this.key.speedY = -0.1;
 
         this.localHitbox.x = this.hitboxX;
         this.localHitbox.width = this.hitboxWidth;

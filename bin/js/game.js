@@ -79,7 +79,7 @@ var GameScene = /** @class */ (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
         var _this = _super.call(this, { key: 'GameScene', active: true }) || this;
-        _this.levelOrder = [LEVEL01, LEVEL02, LEVEL03];
+        _this.levelOrder = [LEVEL01, LEVEL02, LEVEL03, LEVEL04];
         _this.currentLevel = 0;
         _this.fruitsCollected = 0;
         GameScene.instance = _this;
@@ -95,7 +95,7 @@ var GameScene = /** @class */ (function (_super) {
         this.key = new Key();
         this.player = new Player(this);
         this.key.player = this.player;
-        this.key.posX = this.keySpawn.x;
+        this.key.posX = this.keySpawn.x + 4;
         this.key.posY = this.keySpawn.y;
         this.player.posX = this.playerSpawn.x;
         this.player.posY = this.playerSpawn.y;
@@ -114,8 +114,10 @@ var GameScene = /** @class */ (function (_super) {
         this.resetObjects();
     };
     GameScene.prototype.resetObjects = function () {
+        if (this.player.isHoldingKey)
+            this.player.ReleaseKey();
         this.key.SetActive(true);
-        this.key.posX = this.keySpawn.x;
+        this.key.posX = this.keySpawn.x + 4;
         this.key.posY = this.keySpawn.y;
         this.fruit.active = true;
         this.fruit.posX = this.fruitSpawn.x;
@@ -274,6 +276,7 @@ var Rectangle = /** @class */ (function () {
 var LEVEL01 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 4, 18, 18, 18, 18, 18, 5, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 8, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 17, 18, 11, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 9, 11, 0, 0, 0, 0, 0, 20, 0, 11, 0, 0, 0, 0, 1, 3, 0, 0, 9, 11, 0, 17, 19, 0, 0, 0, 0, 0, 28, 0, 11, 0, 7, 0, 0, 9, 11, 0, 0, 9, 11, 6, 0, 0, 0, 0, 1, 2, 2, 2, 2, 12, 2, 2, 2, 2, 13, 12, 2, 2, 13, 12, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LEVEL02 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 25, 7, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 26, 0, 2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 29, 0, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 29, 0, 0, 1, 2, 10, 10, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LEVEL03 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 18, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1, 2, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 7, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 2, 3, 14, 14, 1, 2, 3, 0, 27, 0, 0, 0, 20, 0, 0, 21, 0, 0, 29, 1, 2, 10, 11, 14, 14, 17, 18, 19, 0, 1, 3, 0, 0, 28, 0, 0, 26, 0, 0, 1, 13, 10, 10, 11, 14, 14, 0, 6, 0, 0, 9, 11, 0, 0, 0, 0, 0, 29, 1, 2, 13, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 13, 12, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+var LEVEL04 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 18, 18, 18, 18, 10, 10, 11, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 7, 0, 30, 0, 0, 14, 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 2, 2, 3, 0, 14, 6, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31, 9, 10, 10, 10, 12, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 14, 0, 31, 0, 0, 0, 27, 0, 9, 10, 10, 10, 10, 10, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LevelLoader = /** @class */ (function () {
     function LevelLoader() {
     }
@@ -306,6 +309,11 @@ var LevelLoader = /** @class */ (function () {
                 case 29:
                     tileType = TILETYPE_KEYBLOCK;
                     break;
+                case 22:
+                case 30:
+                case 31:
+                    tileType = TILETYPE_TRANSLUCENT_KEYBLOCK;
+                    break;
                 case 14:
                     tileType = TILETYPE_SEMISOLID;
                     break;
@@ -337,11 +345,13 @@ var TILETYPE_EMPTY = 0;
 var TILETYPE_SOLID = 1;
 var TILETYPE_KEYBLOCK = 2;
 var TILETYPE_SEMISOLID = 3;
+var TILETYPE_TRANSLUCENT_KEYBLOCK = 4;
 var Tile = /** @class */ (function () {
     function Tile(hitbox, tileType, frame) {
         this.connections = [];
         this.hitbox = hitbox;
         this.tileType = tileType;
+        this.frame = frame;
         if (tileType > 0) {
             this.sprite = GameScene.instance.add.sprite(hitbox.x, hitbox.y, 'tilessheet', frame);
             this.sprite.setOrigin(0, 0);
@@ -362,6 +372,16 @@ var Tile = /** @class */ (function () {
                     break;
             }
         }
+        else if (tileType == TILETYPE_TRANSLUCENT_KEYBLOCK) {
+            switch (frame) {
+                case 21:
+                    this.connections.push(new Phaser.Geom.Point(hitbox.x / 16, hitbox.y / 16 + 1));
+                    break;
+                case 29:
+                    this.connections.push(new Phaser.Geom.Point(hitbox.x / 16, hitbox.y / 16 - 1));
+                    break;
+            }
+        }
     }
     Object.defineProperty(Tile.prototype, "solid", {
         get: function () { return this.tileType == TILETYPE_SOLID || this.tileType == TILETYPE_KEYBLOCK; },
@@ -374,14 +394,32 @@ var Tile = /** @class */ (function () {
         configurable: true
     });
     Tile.prototype.Unlock = function () {
-        this.tileType = TILETYPE_EMPTY;
-        this.sprite.setVisible(false);
-        while (this.connections.length > 0) {
-            var index = this.connections[0].x % 21 + this.connections[0].y * 21;
-            if (GameScene.instance.tiles[index].tileType == TILETYPE_KEYBLOCK) {
-                GameScene.instance.tiles[index].Unlock();
+        if (this.tileType == TILETYPE_KEYBLOCK) {
+            this.tileType = TILETYPE_EMPTY;
+            this.sprite.setVisible(false);
+            while (this.connections.length > 0) {
+                var index = this.connections[0].x % 21 + this.connections[0].y * 21;
+                if (GameScene.instance.tiles[index].tileType == TILETYPE_KEYBLOCK) {
+                    GameScene.instance.tiles[index].Unlock();
+                }
+                this.connections.splice(0, 1);
             }
-            this.connections.splice(0, 1);
+        }
+        else if (this.tileType == TILETYPE_TRANSLUCENT_KEYBLOCK) {
+            this.tileType = TILETYPE_SOLID;
+            if (this.frame == 30)
+                this.sprite.setFrame(22);
+            if (this.frame == 21)
+                this.sprite.setFrame(20);
+            if (this.frame == 29)
+                this.sprite.setFrame(28);
+            while (this.connections.length > 0) {
+                var index = this.connections[0].x % 21 + this.connections[0].y * 21;
+                if (GameScene.instance.tiles[index].tileType == TILETYPE_TRANSLUCENT_KEYBLOCK) {
+                    GameScene.instance.tiles[index].Unlock();
+                }
+                this.connections.splice(0, 1);
+            }
         }
     };
     return Tile;
@@ -466,7 +504,9 @@ var Key = /** @class */ (function (_super) {
     Key.prototype.BeforeCollisionCheck = function (tiles) {
         var used = false;
         for (var i = 0; i < tiles.length; i++) {
-            if (tiles[i] != undefined && tiles[i].tileType == TILETYPE_KEYBLOCK && tiles[i].hitbox.Intersects(this.globalHitbox)) {
+            if (tiles[i] == undefined)
+                continue;
+            if ((tiles[i].tileType == TILETYPE_KEYBLOCK || tiles[i].tileType == TILETYPE_TRANSLUCENT_KEYBLOCK) && tiles[i].hitbox.Intersects(this.globalHitbox)) {
                 tiles[i].Unlock();
                 used = true;
             }
@@ -488,7 +528,7 @@ var Key = /** @class */ (function (_super) {
         for (var i = 0; i < result.tiles.length; i++) {
             if (result.tiles[i] == undefined || (!result.tiles[i].solid && !result.tiles[i].semisolid))
                 continue;
-            var hitbox = this.player.globalHitbox;
+            var hitbox = this.globalHitbox;
             if (result.tiles[i].hitbox.y == hitbox.bottom && hitbox.right > result.tiles[i].hitbox.x && hitbox.x < result.tiles[i].hitbox.right) {
                 return;
             }
@@ -598,6 +638,7 @@ var Player = /** @class */ (function (_super) {
     };
     Player.prototype.ReleaseKey = function () {
         this.key.state = KEY_INAIR;
+        this.key.speedY = -0.1;
         this.localHitbox.x = this.hitboxX;
         this.localHitbox.width = this.hitboxWidth;
         this.maxRunSpeed = BASE_MAXRUNSPEED;
