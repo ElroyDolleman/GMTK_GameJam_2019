@@ -1,7 +1,7 @@
 class GameScene extends Phaser.Scene
 {
-    public levelOrder = [LEVEL01, LEVEL05, LEVEL03, LEVEL04, LEVEL05];
-    public currentLevel = 0;
+    public levelOrder = [LEVEL01, LEVEL02, LEVEL03, LEVEL04, LEVEL05];
+    public currentLevel = -1;
 
     public fruitsCollected = 0;
 
@@ -19,7 +19,7 @@ class GameScene extends Phaser.Scene
 
     public prevPlayerHitbox: Rectangle;
 
-    public tiles: Tile[];
+    public tiles: Tile[] = [];
 
     constructor()
     {
@@ -37,22 +37,13 @@ class GameScene extends Phaser.Scene
     create()
     {
         this.inputReset = this.input.keyboard.addKey('R');
-        
-        this.tiles = LevelLoader.load(LEVEL01);
 
         this.key = new Key();
         this.player = new Player(this);
         this.key.player = this.player;
-
-        this.key.posX = this.keySpawn.x + 4;
-        this.key.posY = this.keySpawn.y;
-
-        this.player.posX = this.playerSpawn.x;
-        this.player.posY = this.playerSpawn.y;
-
         this.fruit = new Fruit();
-        this.fruit.posX = this.fruitSpawn.x;
-        this.fruit.posY = this.fruitSpawn.y - 8;
+
+        this.nextLevel();
     }
 
     nextLevel()
@@ -80,9 +71,14 @@ class GameScene extends Phaser.Scene
         this.key.posX = this.keySpawn.x + 4;
         this.key.posY = this.keySpawn.y - 0.1;
         this.key.sprite.flipX = false;
+        this.key.sprite.setOrigin(0, 0);
 
-        this.fruit.active = true;
-        this.fruit.posX = this.fruitSpawn.x;
+        if (!this.fruit.active)
+        {
+            this.fruit.active = true;
+            this.fruitsCollected--;
+        }
+        this.fruit.posX = this.fruitSpawn.x + (this.currentLevel == 4 ? 8 : 0);
         this.fruit.posY = this.fruitSpawn.y - 8;
 
         this.player.posX = this.playerSpawn.x;
@@ -108,7 +104,7 @@ class GameScene extends Phaser.Scene
 
         if (this.fruit.active) this.fruit.Update();
 
-        if (this.player.posX > 321 + this.player.localHitbox.width)
+        if (this.player.posX > 330)
         {
             this.nextLevel();
         }

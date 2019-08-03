@@ -35,6 +35,13 @@ class RunState extends GroundedState
         }
         else
         {
+            if ((this.curFrame == 1 || this.curFrame == 0) && this.player.isHoldingKey) {
+                this.curFrame = 6;
+            }
+            else if ((this.curFrame == 6 || this.curFrame == 7) && !this.player.isHoldingKey) {
+                this.curFrame = 0;
+            }
+
             this.animTimer += (1/60);
 
             if (this.animTimer > 0.2 * (100 / Math.abs(this.player.speedX)))

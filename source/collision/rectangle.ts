@@ -23,4 +23,12 @@ class Rectangle
             other.y < this.bottom &&
             this.y < other.bottom;
     }
+
+    public IntersectsOrNextTo(other: Rectangle)
+    {
+        return other.x <= this.right &&
+            this.x <= other.right &&
+            other.y <= this.bottom &&
+            this.y <= other.bottom;
+    }
 }

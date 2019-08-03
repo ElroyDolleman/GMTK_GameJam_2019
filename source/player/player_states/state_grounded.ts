@@ -51,11 +51,12 @@ class GroundedState extends BaseState
         // If the key is also not under the player, fall
         else if (this.player.key.active && !this.player.isHoldingKey && this.player.key.globalHitbox.y == hitbox.bottom && hitbox.right > this.player.key.globalHitbox.x && hitbox.x < this.player.key.globalHitbox.right)
         {
-            if (!Phaser.Input.Keyboard.JustDown(this.player.inputGrab))
-            {
-                return;
-            }
-            this.player.GrabKey();
+            // if (!Phaser.Input.Keyboard.JustDown(this.player.inputGrab))
+            // {
+            //     return;
+            // }
+            // this.player.GrabKey();
+            return;
         }
 
         this.player.ChangeState(this.player.fallState);

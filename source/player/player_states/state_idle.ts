@@ -2,6 +2,8 @@
 
 class IdleState extends GroundedState
 {
+    frame: number;
+
     constructor(player: Player)
     {
         super(player);
@@ -9,7 +11,8 @@ class IdleState extends GroundedState
 
     public OnEnter()
     {
-        this.player.sprite.setFrame(!this.player.isHoldingKey ? 0 : 6);
+        this.frame = !this.player.isHoldingKey ? 0 : 6;
+        this.player.sprite.setFrame(this.frame);
     }
 
     public Update()
@@ -21,6 +24,16 @@ class IdleState extends GroundedState
         if (this.player.speedX != 0 && this.player.currentState == this)
         {
             this.player.ChangeState(this.player.runState);
+        }
+        else if (this.player.isHoldingKey && this.frame == 0)
+        {
+            this.frame = 6;
+            this.player.sprite.setFrame(this.frame);
+        }
+        else if (!this.player.isHoldingKey && this.frame == 6)
+        {
+            this.frame = 0;
+            this.player.sprite.setFrame(this.frame);
         }
     }
 

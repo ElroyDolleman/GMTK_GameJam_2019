@@ -79,9 +79,10 @@ var GameScene = /** @class */ (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
         var _this = _super.call(this, { key: 'GameScene', active: true }) || this;
-        _this.levelOrder = [LEVEL01, LEVEL05, LEVEL03, LEVEL04, LEVEL05];
-        _this.currentLevel = 0;
+        _this.levelOrder = [LEVEL01, LEVEL02, LEVEL03, LEVEL04, LEVEL05];
+        _this.currentLevel = -1;
         _this.fruitsCollected = 0;
+        _this.tiles = [];
         GameScene.instance = _this;
         return _this;
     }
@@ -91,17 +92,11 @@ var GameScene = /** @class */ (function (_super) {
     };
     GameScene.prototype.create = function () {
         this.inputReset = this.input.keyboard.addKey('R');
-        this.tiles = LevelLoader.load(LEVEL01);
         this.key = new Key();
         this.player = new Player(this);
         this.key.player = this.player;
-        this.key.posX = this.keySpawn.x + 4;
-        this.key.posY = this.keySpawn.y;
-        this.player.posX = this.playerSpawn.x;
-        this.player.posY = this.playerSpawn.y;
         this.fruit = new Fruit();
-        this.fruit.posX = this.fruitSpawn.x;
-        this.fruit.posY = this.fruitSpawn.y - 8;
+        this.nextLevel();
     };
     GameScene.prototype.nextLevel = function () {
         LevelLoader.unload();
@@ -120,8 +115,12 @@ var GameScene = /** @class */ (function (_super) {
         this.key.posX = this.keySpawn.x + 4;
         this.key.posY = this.keySpawn.y - 0.1;
         this.key.sprite.flipX = false;
-        this.fruit.active = true;
-        this.fruit.posX = this.fruitSpawn.x;
+        this.key.sprite.setOrigin(0, 0);
+        if (!this.fruit.active) {
+            this.fruit.active = true;
+            this.fruitsCollected--;
+        }
+        this.fruit.posX = this.fruitSpawn.x + (this.currentLevel == 4 ? 8 : 0);
         this.fruit.posY = this.fruitSpawn.y - 8;
         this.player.posX = this.playerSpawn.x;
         this.player.posY = this.playerSpawn.y;
@@ -144,7 +143,7 @@ var GameScene = /** @class */ (function (_super) {
             this.key.posX = 0;
         if (this.fruit.active)
             this.fruit.Update();
-        if (this.player.posX > 321 + this.player.localHitbox.width) {
+        if (this.player.posX > 330) {
             this.nextLevel();
         }
         else if (Phaser.Input.Keyboard.JustDown(this.inputReset)) {
@@ -272,13 +271,19 @@ var Rectangle = /** @class */ (function () {
             other.y < this.bottom &&
             this.y < other.bottom;
     };
+    Rectangle.prototype.IntersectsOrNextTo = function (other) {
+        return other.x <= this.right &&
+            this.x <= other.right &&
+            other.y <= this.bottom &&
+            this.y <= other.bottom;
+    };
     return Rectangle;
 }());
 var LEVEL01 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 4, 18, 18, 18, 18, 18, 5, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 8, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 17, 18, 11, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 9, 11, 0, 0, 0, 0, 0, 20, 0, 11, 0, 0, 0, 0, 1, 3, 0, 0, 9, 11, 0, 17, 19, 0, 0, 0, 0, 0, 28, 0, 11, 0, 7, 0, 0, 9, 11, 0, 0, 9, 11, 6, 0, 0, 0, 0, 1, 2, 2, 2, 2, 12, 2, 2, 2, 2, 13, 12, 2, 2, 13, 12, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LEVEL02 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 25, 7, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 26, 0, 2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 29, 0, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 29, 0, 0, 1, 2, 10, 10, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LEVEL03 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 18, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1, 2, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 7, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 2, 3, 14, 14, 1, 2, 3, 0, 27, 0, 0, 0, 20, 0, 0, 21, 0, 0, 29, 1, 2, 10, 11, 14, 14, 17, 18, 19, 0, 1, 3, 0, 0, 28, 0, 0, 26, 0, 0, 1, 13, 10, 10, 11, 14, 14, 0, 6, 0, 0, 9, 11, 0, 0, 0, 0, 0, 29, 1, 2, 13, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 13, 12, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LEVEL04 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 18, 18, 18, 18, 10, 10, 11, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 7, 0, 30, 0, 0, 14, 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 2, 2, 3, 0, 14, 6, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31, 9, 10, 10, 10, 12, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 14, 0, 31, 0, 0, 0, 27, 0, 9, 10, 10, 10, 10, 10, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
-var LEVEL05 = [10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 11, 0, 0, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 9, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 14, 14, 9, 10, 10, 10, 11, 0, 8, 0, 0, 0, 0, 1, 3, 14, 0, 14, 14, 22, 0, 0, 0, 9, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 17, 19, 0, 0, 0, 0, 30, 0, 0, 0, 9, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 13, 10, 10, 18, 19, 0, 0, 0, 31, 0, 27, 1, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 0, 0, 14, 14, 14, 14, 0, 0, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 14, 0, 0, 1, 2, 2, 3, 0, 0, 0, 0, 1, 2, 2, 2, 2, 3, 0, 0, 10, 11, 0, 0, 0, 17, 18, 18, 19, 0, 0, 0, 21, 17, 18, 18, 18, 18, 19, 0, 0, 10, 11, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 0, 0, 0, 0, 21, 0, 10, 11, 14, 0, 0, 0, 0, 0, 0, 22, 0, 0, 29, 0, 0, 0, 0, 0, 0, 26, 0, 10, 11, 0, 14, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 31, 0, 29, 0, 10, 11, 0, 0, 14, 0, 0, 31, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2, 2, 10, 10, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+var LEVEL05 = [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 14, 14, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 30, 14, 14, 0, 14, 14, 22, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 9, 10, 10, 12, 3, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 13, 10, 10, 18, 19, 0, 0, 0, 31, 0, 27, 1, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 0, 0, 14, 14, 14, 14, 0, 0, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 14, 0, 0, 1, 2, 2, 3, 0, 0, 0, 0, 1, 2, 2, 2, 2, 3, 0, 0, 10, 11, 0, 14, 14, 17, 18, 18, 19, 0, 0, 0, 21, 17, 18, 18, 18, 18, 19, 0, 0, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 0, 0, 0, 0, 21, 0, 10, 11, 14, 14, 0, 0, 0, 0, 0, 22, 0, 0, 29, 0, 0, 0, 0, 0, 0, 26, 1, 10, 11, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 31, 0, 29, 9, 10, 11, 0, 0, 0, 0, 0, 0, 31, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 13, 10, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LevelLoader = /** @class */ (function () {
     function LevelLoader() {
     }
@@ -508,7 +513,7 @@ var Key = /** @class */ (function (_super) {
         for (var i = 0; i < tiles.length; i++) {
             if (tiles[i] == undefined)
                 continue;
-            if ((tiles[i].tileType == TILETYPE_KEYBLOCK || tiles[i].tileType == TILETYPE_TRANSLUCENT_KEYBLOCK) && tiles[i].hitbox.Intersects(this.globalHitbox)) {
+            if ((tiles[i].tileType == TILETYPE_KEYBLOCK || tiles[i].tileType == TILETYPE_TRANSLUCENT_KEYBLOCK) && tiles[i].hitbox.Intersects(this.nextHitbox)) {
                 tiles[i].Unlock();
                 used = true;
             }
@@ -556,6 +561,7 @@ var Player = /** @class */ (function (_super) {
         _this.accelSpeed = BASE_ACCELSPEED;
         _this.jumpPower = BASE_JUMPPOWER;
         _this.gravity = BASE_GRAVITY;
+        _this.keyRegrabable = true;
         _this.hitboxWidth = 10;
         _this.hitboxX = 3;
         _this.scene = scene;
@@ -607,10 +613,13 @@ var Player = /** @class */ (function (_super) {
             return;
         }
         var releaseKey = false;
-        if (!this.isHoldingKey && Phaser.Input.Keyboard.JustDown(this.inputGrab) && this.key.globalHitbox.Intersects(this.globalHitbox)) {
+        if (!this.keyRegrabable) {
+            this.keyRegrabable = this.inputGrab.isUp;
+        }
+        if (!this.isHoldingKey && this.keyRegrabable && this.inputGrab.isDown && this.key.globalHitbox.IntersectsOrNextTo(this.globalHitbox)) {
             this.GrabKey();
         }
-        else if (this.isHoldingKey && Phaser.Input.Keyboard.JustDown(this.inputGrab)) {
+        else if (this.isHoldingKey && this.inputGrab.isUp) {
             releaseKey = true;
         }
         if (this.isHoldingKey) {
@@ -639,8 +648,9 @@ var Player = /** @class */ (function (_super) {
         this.gravity = KEYHOLD_GRAVITY;
     };
     Player.prototype.ReleaseKey = function () {
-        this.key.state = KEY_INAIR;
-        this.key.speedY = -0.1;
+        this.keyRegrabable = this.inputGrab.isUp;
+        this.key.state = KEY_GROUNDED;
+        //this.key.speedY = -0.1;
         this.localHitbox.x = this.hitboxX;
         this.localHitbox.width = this.hitboxWidth;
         this.maxRunSpeed = BASE_MAXRUNSPEED;
@@ -786,10 +796,12 @@ var GroundedState = /** @class */ (function (_super) {
         }
         // If the key is also not under the player, fall
         else if (this.player.key.active && !this.player.isHoldingKey && this.player.key.globalHitbox.y == hitbox.bottom && hitbox.right > this.player.key.globalHitbox.x && hitbox.x < this.player.key.globalHitbox.right) {
-            if (!Phaser.Input.Keyboard.JustDown(this.player.inputGrab)) {
-                return;
-            }
-            this.player.GrabKey();
+            // if (!Phaser.Input.Keyboard.JustDown(this.player.inputGrab))
+            // {
+            //     return;
+            // }
+            // this.player.GrabKey();
+            return;
         }
         this.player.ChangeState(this.player.fallState);
     };
@@ -802,13 +814,22 @@ var IdleState = /** @class */ (function (_super) {
         return _super.call(this, player) || this;
     }
     IdleState.prototype.OnEnter = function () {
-        this.player.sprite.setFrame(!this.player.isHoldingKey ? 0 : 6);
+        this.frame = !this.player.isHoldingKey ? 0 : 6;
+        this.player.sprite.setFrame(this.frame);
     };
     IdleState.prototype.Update = function () {
         _super.prototype.Update.call(this);
         this.player.UpdateMoveControls();
         if (this.player.speedX != 0 && this.player.currentState == this) {
             this.player.ChangeState(this.player.runState);
+        }
+        else if (this.player.isHoldingKey && this.frame == 0) {
+            this.frame = 6;
+            this.player.sprite.setFrame(this.frame);
+        }
+        else if (!this.player.isHoldingKey && this.frame == 6) {
+            this.frame = 0;
+            this.player.sprite.setFrame(this.frame);
         }
     };
     IdleState.prototype.OnCollisionSolved = function (result) {
@@ -858,6 +879,12 @@ var RunState = /** @class */ (function (_super) {
             this.player.ChangeState(this.player.idleState);
         }
         else {
+            if ((this.curFrame == 1 || this.curFrame == 0) && this.player.isHoldingKey) {
+                this.curFrame = 6;
+            }
+            else if ((this.curFrame == 6 || this.curFrame == 7) && !this.player.isHoldingKey) {
+                this.curFrame = 0;
+            }
             this.animTimer += (1 / 60);
             if (this.animTimer > 0.2 * (100 / Math.abs(this.player.speedX))) {
                 this.animTimer = 0;

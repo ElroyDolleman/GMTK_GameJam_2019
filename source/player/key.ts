@@ -47,7 +47,7 @@ class Key extends Actor
         {
             if (tiles[i] == undefined) continue;
 
-            if ((tiles[i].tileType == TILETYPE_KEYBLOCK || tiles[i].tileType == TILETYPE_TRANSLUCENT_KEYBLOCK) && tiles[i].hitbox.Intersects(this.globalHitbox))
+            if ((tiles[i].tileType == TILETYPE_KEYBLOCK || tiles[i].tileType == TILETYPE_TRANSLUCENT_KEYBLOCK) && tiles[i].hitbox.Intersects(this.nextHitbox))
             {
                 tiles[i].Unlock();
                 used = true;

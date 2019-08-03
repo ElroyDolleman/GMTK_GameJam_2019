@@ -34,6 +34,7 @@ class Player extends Actor
     public inputJump: Phaser.Input.Keyboard.Key;
     public inputGrab: Phaser.Input.Keyboard.Key;
 
+    public keyRegrabable = true;
     public key: Key;
     public get isHoldingKey(): boolean { return this.key.state == KEY_GRABBED; }
 
@@ -104,17 +105,20 @@ class Player extends Actor
             {
                 this.ReleaseKey();
             }
-
             return;
         }
 
         let releaseKey = false;
 
-        if (!this.isHoldingKey && Phaser.Input.Keyboard.JustDown(this.inputGrab) && this.key.globalHitbox.Intersects(this.globalHitbox))
+        if (!this.keyRegrabable){
+            this.keyRegrabable = this.inputGrab.isUp;
+        }
+
+        if (!this.isHoldingKey && this.keyRegrabable && this.inputGrab.isDown && this.key.globalHitbox.IntersectsOrNextTo(this.globalHitbox))
         {
             this.GrabKey();
         }
-        else if (this.isHoldingKey && Phaser.Input.Keyboard.JustDown(this.inputGrab))
+        else if (this.isHoldingKey && this.inputGrab.isUp)
         {
             releaseKey = true;
         }
@@ -156,8 +160,10 @@ class Player extends Actor
 
     public ReleaseKey()
     {
-        this.key.state = KEY_INAIR;
-        this.key.speedY = -0.1;
+        this.keyRegrabable = this.inputGrab.isUp;
+
+        this.key.state = KEY_GROUNDED;
+        //this.key.speedY = -0.1;
 
         this.localHitbox.x = this.hitboxX;
         this.localHitbox.width = this.hitboxWidth;
