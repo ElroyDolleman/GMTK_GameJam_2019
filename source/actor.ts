@@ -8,6 +8,9 @@ class Actor
     public set posX(x: number) { this.sprite.setX(x); };
     public set posY(y: number) { this.sprite.setY(y); };
 
+    public get nextPosX(): number { return this.sprite.x + this.speedX * (1/60); };
+    public get nextPosY(): number { return this.sprite.y + this.speedY * (1/60); };
+
     public speedX: number = 0;
     public speedY: number = 0;
 

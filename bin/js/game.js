@@ -32,6 +32,18 @@ var Actor = /** @class */ (function () {
     ;
     ;
     ;
+    Object.defineProperty(Actor.prototype, "nextPosX", {
+        get: function () { return this.sprite.x + this.speedX * (1 / 60); },
+        enumerable: true,
+        configurable: true
+    });
+    ;
+    Object.defineProperty(Actor.prototype, "nextPosY", {
+        get: function () { return this.sprite.y + this.speedY * (1 / 60); },
+        enumerable: true,
+        configurable: true
+    });
+    ;
     Object.defineProperty(Actor.prototype, "speedXDir", {
         get: function () { return this.speedX == 0 ? 0 : (this.speedX > 0 ? 1 : -1); },
         enumerable: true,
@@ -52,7 +64,9 @@ var Actor = /** @class */ (function () {
 var GameScene = /** @class */ (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
-        return _super.call(this, { key: 'GameScene', active: true }) || this;
+        var _this = _super.call(this, { key: 'GameScene', active: true }) || this;
+        GameScene.instance = _this;
+        return _this;
     }
     GameScene.prototype.preload = function () {
         console.log("Hello World!");
@@ -61,18 +75,59 @@ var GameScene = /** @class */ (function (_super) {
     };
     GameScene.prototype.create = function () {
         this.player = new Player(this);
+        this.tiles = LevelLoader.load(LEVEL01);
     };
     GameScene.prototype.update = function () {
         this.player.Update();
-        this.player.posX += this.player.speedX * (1 / 60);
-        this.player.posY += this.player.speedY * (1 / 60);
-        if (this.player.speedXDir < 0) {
-            this.player.sprite.flipX = true;
+        this.moveActor(this.player);
+    };
+    GameScene.prototype.moveActor = function (actor) {
+        var gridX = Math.floor(actor.nextPosX / 16);
+        var gridY = Math.floor(actor.nextPosY / 16);
+        // X
+        actor.posX += actor.speedX * (1 / 60);
+        for (var x = gridX; x <= gridX + 1; x++) {
+            for (var y = gridY; y <= gridY + 1; y++) {
+                var i = x % 20 + y * 20;
+                if (this.tiles[i] == undefined || !this.tiles[i].solid || !this.tiles[i].hitbox.Intersects(actor.globalHitbox)) {
+                    //if (x == 9) console.log(this.tiles[i].hitbox.Intersects(actor.globalHitbox));
+                    continue;
+                }
+                if (actor.globalHitbox.x < this.tiles[i].hitbox.x) {
+                    console.log("on right", x, y);
+                    actor.posX = this.tiles[i].hitbox.x - (actor.localHitbox.width + actor.localHitbox.x);
+                }
+                else if (actor.globalHitbox.right > this.tiles[i].hitbox.right) {
+                    console.log("on left", x, y);
+                    actor.posX = this.tiles[i].hitbox.right - actor.localHitbox.x;
+                }
+            }
         }
-        else if (this.player.speedXDir > 0) {
-            this.player.sprite.flipX = false;
+        // Y
+        actor.posY += actor.speedY * (1 / 60);
+        for (var x = gridX; x <= gridX + 1; x++) {
+            for (var y = gridY; y <= gridY + 1; y++) {
+                var i = x % 20 + y * 20;
+                if (this.tiles[i] == undefined || !this.tiles[i].solid || !this.tiles[i].hitbox.Intersects(actor.globalHitbox)) {
+                    //if (x == 9) console.log(this.tiles[i].hitbox.Intersects(actor.globalHitbox));
+                    continue;
+                }
+                if (actor.globalHitbox.y < this.tiles[i].hitbox.y) {
+                    console.log("on bottom", x, y);
+                    actor.posY = this.tiles[i].hitbox.y - (actor.localHitbox.height + actor.localHitbox.y);
+                }
+                else if (actor.globalHitbox.bottom > this.tiles[i].hitbox.bottom) {
+                    console.log("on top", x, y);
+                    actor.posY = this.tiles[i].hitbox.bottom - actor.localHitbox.y;
+                }
+            }
         }
-        console.log(this.player.posX);
+        if (actor.speedXDir < 0) {
+            actor.sprite.flipX = true;
+        }
+        else if (actor.speedXDir > 0) {
+            actor.sprite.flipX = false;
+        }
     };
     GameScene.prototype.draw = function () {
     };
@@ -100,13 +155,61 @@ var Rectangle = /** @class */ (function () {
         this.width = width;
         this.height = height;
     }
+    Object.defineProperty(Rectangle.prototype, "right", {
+        get: function () { return this.x + this.width; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Rectangle.prototype, "bottom", {
+        get: function () { return this.y + this.height; },
+        enumerable: true,
+        configurable: true
+    });
     Rectangle.prototype.Intersects = function (other) {
-        return other.x < (this.x + this.width) &&
-            this.x < (other.x + other.width) &&
-            other.y < this.y + this.height &&
-            this.y < other.y + other.height;
+        return other.x < this.right &&
+            this.x < other.right &&
+            other.y < this.bottom &&
+            this.y < other.bottom;
     };
     return Rectangle;
+}());
+var LEVEL01 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 13, 11, 0, 0, 0, 0, 0, 0, 28, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 12, 2, 2, 2, 2, 2, 2, 2, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+var LevelLoader = /** @class */ (function () {
+    function LevelLoader() {
+    }
+    LevelLoader.load = function (array) {
+        var tiles = [];
+        for (var i = 0; i < array.length; i++) {
+            var x = i % 20;
+            var y = Math.floor(i / 20);
+            var rect = new Rectangle(x * 16, y * 16, 16, 16);
+            var tileType = TILETYPE_EMPTY;
+            if (array[i] > 0) {
+                tileType = TILETYPE_SOLID;
+            }
+            tiles.push(new Tile(rect, tileType, array[i] - 1));
+        }
+        return tiles;
+    };
+    return LevelLoader;
+}());
+var TILETYPE_EMPTY = 0;
+var TILETYPE_SOLID = 1;
+var Tile = /** @class */ (function () {
+    function Tile(hitbox, tileType, frame) {
+        this.hitbox = hitbox;
+        this.tileType = tileType;
+        if (tileType > 0) {
+            this.sprite = GameScene.instance.add.sprite(hitbox.x, hitbox.y, 'tilessheet', frame);
+            this.sprite.setOrigin(0, 0);
+        }
+    }
+    Object.defineProperty(Tile.prototype, "solid", {
+        get: function () { return this.tileType == TILETYPE_SOLID; },
+        enumerable: true,
+        configurable: true
+    });
+    return Tile;
 }());
 /// <reference path="../actor.ts"/>
 var Player = /** @class */ (function (_super) {
@@ -114,8 +217,9 @@ var Player = /** @class */ (function (_super) {
     function Player(scene) {
         var _this = _super.call(this) || this;
         _this.scene = scene;
-        _this.sprite = _this.scene.add.sprite(0, 320 - 16, 'character');
+        _this.sprite = _this.scene.add.sprite(16, 320 - 48, 'character');
         _this.sprite.setOrigin(0, 0);
+        _this.localHitbox = new Rectangle(3, 1, 10, 14);
         _this.inputDown = _this.scene.input.keyboard.addKey('S');
         _this.inputLeft = _this.scene.input.keyboard.addKey('A');
         _this.inputRight = _this.scene.input.keyboard.addKey('D');
@@ -136,21 +240,21 @@ var Player = /** @class */ (function (_super) {
     };
     Player.prototype.UpdateMoveControls = function () {
         if (this.inputLeft.isDown) {
-            if (this.speedX > -120) {
-                this.speedX = Math.max(this.speedX - 30, -120);
+            if (this.speedX > -100) {
+                this.speedX = Math.max(this.speedX - 20, -100);
             }
         }
         else if (this.inputRight.isDown) {
-            if (this.speedX < 120) {
-                this.speedX = Math.min(this.speedX + 30, 120);
+            if (this.speedX < 100) {
+                this.speedX = Math.min(this.speedX + 20, 100);
             }
         }
         else {
-            if (Math.abs(this.speedX) < 30) {
+            if (Math.abs(this.speedX) < 20) {
                 this.speedX = 0;
             }
             else {
-                this.speedX -= 30 * this.speedXDir;
+                this.speedX -= 20 * this.speedXDir;
             }
         }
     };
@@ -180,6 +284,7 @@ var AirborneState = /** @class */ (function (_super) {
     AirborneState.prototype.OnEnter = function () {
     };
     AirborneState.prototype.Update = function () {
+        this.player.UpdateMoveControls();
         if (this.player.speedY < this.maxFallSpeed) {
             this.player.speedY += this.gravity;
         }

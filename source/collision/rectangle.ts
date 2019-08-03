@@ -1,5 +1,8 @@
 class Rectangle
 {
+    public get right(): number { return this.x + this.width; }
+    public get bottom(): number { return this.y + this.height; }
+
     public x: number;
     public y: number;
     public width: number;
@@ -15,9 +18,9 @@ class Rectangle
 
     public Intersects(other: Rectangle)
     {
-        return other.x < (this.x + this.width) &&
-            this.x < (other.x + other.width) &&
-            other.y < this.y + this.height &&
-            this.y < other.y + other.height;
+        return other.x < this.right &&
+            this.x < other.right &&
+            other.y < this.bottom &&
+            this.y < other.bottom;
     }
 }

@@ -17,6 +17,8 @@ class AirborneState extends BaseState
 
     public Update()
     {
+        this.player.UpdateMoveControls();
+
         if (this.player.speedY < this.maxFallSpeed)
         {
             this.player.speedY += this.gravity;

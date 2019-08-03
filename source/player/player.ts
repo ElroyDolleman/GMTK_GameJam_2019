@@ -22,8 +22,10 @@ class Player extends Actor
 
         this.scene = scene;
 
-        this.sprite = this.scene.add.sprite(0, 320-16, 'character');
+        this.sprite = this.scene.add.sprite(16, 320-48, 'character');
         this.sprite.setOrigin(0, 0);
+
+        this.localHitbox = new Rectangle(3, 1, 10, 14);
 
         this.inputDown = this.scene.input.keyboard.addKey('S');
         this.inputLeft = this.scene.input.keyboard.addKey('A');
@@ -53,27 +55,27 @@ class Player extends Actor
     {
         if (this.inputLeft.isDown)
         {
-            if (this.speedX > -120)
+            if (this.speedX > -100)
             {
-                this.speedX = Math.max(this.speedX - 30, -120);
+                this.speedX = Math.max(this.speedX - 20, -100);
             }
         }
         else if (this.inputRight.isDown)
         {
-            if (this.speedX < 120)
+            if (this.speedX < 100)
             {
-                this.speedX = Math.min(this.speedX + 30, 120);
+                this.speedX = Math.min(this.speedX + 20, 100);
             }
         }
         else
         {
-            if (Math.abs(this.speedX) < 30)
+            if (Math.abs(this.speedX) < 20)
             {
                 this.speedX = 0;
             }
             else
             {
-                this.speedX -= 30 * this.speedXDir;
+                this.speedX -= 20 * this.speedXDir;
             }
         }
     }
