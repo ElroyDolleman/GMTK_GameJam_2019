@@ -26,7 +26,7 @@ class GroundedState extends BaseState
 
         for (let i = 0; i < result.tiles.length; i++)
         {
-            if (result.tiles[i] == undefined || !result.tiles[i].solid) continue;
+            if (result.tiles[i] == undefined || (!result.tiles[i].solid && !result.tiles[i].semisolid)) continue;
 
             if (result.tiles[i].hitbox.y == hitbox.bottom && hitbox.right > result.tiles[i].hitbox.x && hitbox.x < result.tiles[i].hitbox.right)
             {

@@ -1,6 +1,7 @@
 const TILETYPE_EMPTY = 0;
 const TILETYPE_SOLID = 1;
 const TILETYPE_KEYBLOCK = 2;
+const TILETYPE_SEMISOLID = 3;
 
 class Tile
 {
@@ -11,6 +12,7 @@ class Tile
     public connections: Phaser.Geom.Point[] = [];
 
     public get solid(): boolean { return this.tileType == TILETYPE_SOLID || this.tileType == TILETYPE_KEYBLOCK; }
+    public get semisolid(): boolean { return this.tileType == TILETYPE_SEMISOLID; }
 
     constructor(hitbox: Rectangle, tileType: number, frame: number)
     {

@@ -79,7 +79,7 @@ var GameScene = /** @class */ (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
         var _this = _super.call(this, { key: 'GameScene', active: true }) || this;
-        _this.levelOrder = [LEVEL01, LEVEL02];
+        _this.levelOrder = [LEVEL01, LEVEL02, LEVEL03];
         _this.currentLevel = 0;
         _this.fruitsCollected = 0;
         GameScene.instance = _this;
@@ -185,12 +185,20 @@ var GameScene = /** @class */ (function (_super) {
             }
         }
         // Y
+        var prevY = actor.globalHitbox.bottom;
         actor.posY += actor.speedY * (1 / 60);
         for (var x = gridX; x <= gridX + endX; x++) {
             for (var y = gridY; y <= gridY + endY; y++) {
                 var i = x % 21 + y * 21;
-                if (this.tiles[i] == undefined || !this.tiles[i].solid || !this.tiles[i].hitbox.Intersects(actor.globalHitbox)) {
-                    //if (x == 9) console.log(this.tiles[i].hitbox.Intersects(actor.globalHitbox));
+                if (this.tiles[i] == undefined || !this.tiles[i].hitbox.Intersects(actor.globalHitbox))
+                    continue;
+                if (!this.tiles[i].solid && !this.tiles[i].semisolid)
+                    continue;
+                if (this.tiles[i].semisolid) {
+                    if (prevY < this.tiles[i].hitbox.y && actor.globalHitbox.bottom > this.tiles[i].hitbox.y) {
+                        result.onBottom = true;
+                        actor.posY = this.tiles[i].hitbox.y - (actor.localHitbox.height + actor.localHitbox.y);
+                    }
                     continue;
                 }
                 if (actor.globalHitbox.y < this.tiles[i].hitbox.y) {
@@ -265,6 +273,7 @@ var Rectangle = /** @class */ (function () {
 }());
 var LEVEL01 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 4, 18, 18, 18, 18, 18, 5, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 8, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 17, 18, 11, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 9, 11, 0, 0, 0, 0, 0, 20, 0, 11, 0, 0, 0, 0, 1, 3, 0, 0, 9, 11, 0, 17, 19, 0, 0, 0, 0, 0, 28, 0, 11, 0, 7, 0, 0, 9, 11, 0, 0, 9, 11, 6, 0, 0, 0, 0, 1, 2, 2, 2, 2, 12, 2, 2, 2, 2, 13, 12, 2, 2, 13, 12, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LEVEL02 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 25, 7, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 26, 0, 2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 29, 0, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 29, 0, 0, 1, 2, 10, 10, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+var LEVEL03 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 18, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1, 2, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 7, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 2, 3, 14, 14, 1, 2, 3, 0, 27, 0, 0, 0, 20, 0, 0, 21, 0, 0, 29, 1, 2, 10, 11, 14, 14, 17, 18, 19, 0, 1, 3, 0, 0, 28, 0, 0, 26, 0, 0, 1, 13, 10, 10, 11, 14, 14, 0, 6, 0, 0, 9, 11, 0, 0, 0, 0, 0, 29, 1, 2, 13, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 13, 12, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LevelLoader = /** @class */ (function () {
     function LevelLoader() {
     }
@@ -297,6 +306,9 @@ var LevelLoader = /** @class */ (function () {
                 case 29:
                     tileType = TILETYPE_KEYBLOCK;
                     break;
+                case 14:
+                    tileType = TILETYPE_SEMISOLID;
+                    break;
                 default:
                     if (array[i] > 0) {
                         tileType = TILETYPE_SOLID;
@@ -324,6 +336,7 @@ var LevelLoader = /** @class */ (function () {
 var TILETYPE_EMPTY = 0;
 var TILETYPE_SOLID = 1;
 var TILETYPE_KEYBLOCK = 2;
+var TILETYPE_SEMISOLID = 3;
 var Tile = /** @class */ (function () {
     function Tile(hitbox, tileType, frame) {
         this.connections = [];
@@ -352,6 +365,11 @@ var Tile = /** @class */ (function () {
     }
     Object.defineProperty(Tile.prototype, "solid", {
         get: function () { return this.tileType == TILETYPE_SOLID || this.tileType == TILETYPE_KEYBLOCK; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Tile.prototype, "semisolid", {
+        get: function () { return this.tileType == TILETYPE_SEMISOLID; },
         enumerable: true,
         configurable: true
     });
@@ -407,13 +425,14 @@ var Fruit = /** @class */ (function () {
     ;
     Fruit.prototype.Update = function () {
         this.animTimer += (1 / 60);
-        if (this.animTimer >= 0.4) {
-            this.animTimer -= 0.4;
+        if (this.animTimer >= 0.5) {
+            this.animTimer -= 0.5;
             this.curFrame = this.curFrame == 9 ? 10 : 9;
             this.sprite.setFrame(this.curFrame);
         }
         if (GameScene.instance.player.globalHitbox.Intersects(this.hitbox)) {
             this.active = false;
+            GameScene.instance.fruitsCollected++;
         }
     };
     return Fruit;
@@ -467,7 +486,7 @@ var Key = /** @class */ (function (_super) {
             this.speedY = 0;
         }
         for (var i = 0; i < result.tiles.length; i++) {
-            if (result.tiles[i] == undefined || !result.tiles[i].solid)
+            if (result.tiles[i] == undefined || (!result.tiles[i].solid && !result.tiles[i].semisolid))
                 continue;
             var hitbox = this.player.globalHitbox;
             if (result.tiles[i].hitbox.y == hitbox.bottom && hitbox.right > result.tiles[i].hitbox.x && hitbox.x < result.tiles[i].hitbox.right) {
@@ -704,7 +723,7 @@ var GroundedState = /** @class */ (function (_super) {
     GroundedState.prototype.OnCollisionSolved = function (result) {
         var hitbox = this.player.globalHitbox;
         for (var i = 0; i < result.tiles.length; i++) {
-            if (result.tiles[i] == undefined || !result.tiles[i].solid)
+            if (result.tiles[i] == undefined || (!result.tiles[i].solid && !result.tiles[i].semisolid))
                 continue;
             if (result.tiles[i].hitbox.y == hitbox.bottom && hitbox.right > result.tiles[i].hitbox.x && hitbox.x < result.tiles[i].hitbox.right) {
                 return;

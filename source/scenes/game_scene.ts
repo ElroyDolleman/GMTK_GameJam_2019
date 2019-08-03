@@ -1,6 +1,6 @@
 class GameScene extends Phaser.Scene
 {
-    public levelOrder = [LEVEL01, LEVEL02];
+    public levelOrder = [LEVEL01, LEVEL02, LEVEL03];
     public currentLevel = 0;
 
     public fruitsCollected = 0;
@@ -169,6 +169,7 @@ class GameScene extends Phaser.Scene
         }
 
         // Y
+        let prevY = actor.globalHitbox.bottom;
         actor.posY += actor.speedY * (1/60);
 
         for (let x = gridX; x <= gridX + endX; x++)
@@ -177,9 +178,16 @@ class GameScene extends Phaser.Scene
             {
                 let i = x % 21 + y * 21;
 
-                if (this.tiles[i] == undefined || !this.tiles[i].solid || !this.tiles[i].hitbox.Intersects(actor.globalHitbox))
+                if (this.tiles[i] == undefined || !this.tiles[i].hitbox.Intersects(actor.globalHitbox)) continue;
+                if (!this.tiles[i].solid && !this.tiles[i].semisolid) continue;
+
+                if (this.tiles[i].semisolid)
                 {
-                    //if (x == 9) console.log(this.tiles[i].hitbox.Intersects(actor.globalHitbox));
+                    if (prevY < this.tiles[i].hitbox.y && actor.globalHitbox.bottom > this.tiles[i].hitbox.y)
+                    {
+                        result.onBottom = true;
+                        actor.posY = this.tiles[i].hitbox.y - (actor.localHitbox.height + actor.localHitbox.y);
+                    }
                     continue;
                 }
 

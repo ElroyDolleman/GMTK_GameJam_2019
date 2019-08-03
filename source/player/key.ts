@@ -75,7 +75,7 @@ class Key extends Actor
 
         for (let i = 0; i < result.tiles.length; i++)
         {
-            if (result.tiles[i] == undefined || !result.tiles[i].solid) continue;
+            if (result.tiles[i] == undefined || (!result.tiles[i].solid && !result.tiles[i].semisolid)) continue;
 
             let hitbox = this.player.globalHitbox;
 
