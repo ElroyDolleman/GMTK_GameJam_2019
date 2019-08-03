@@ -77,13 +77,23 @@ var GameScene = /** @class */ (function (_super) {
     };
     GameScene.prototype.create = function () {
         this.player = new Player(this);
+        this.key = new Key(this.player);
+        this.player.key = this.key;
         this.tiles = LevelLoader.load(LEVEL01);
     };
     GameScene.prototype.update = function () {
         this.player.Update();
+        this.key.Update();
         this.moveActor(this.player);
+        if (this.key.state != KEY_GRABBED) {
+            this.moveActor(this.key);
+        }
     };
     GameScene.prototype.moveActor = function (actor) {
+        // if (actor.speedX == 0 && actor.speedY == 0)
+        // {
+        //     return;
+        // }
         var result = new CollisionResult();
         var gridX = Math.floor(actor.nextPosX / 16);
         var gridY = Math.floor(actor.nextPosY / 16);
@@ -97,12 +107,10 @@ var GameScene = /** @class */ (function (_super) {
                     continue;
                 }
                 if (actor.globalHitbox.x < this.tiles[i].hitbox.x) {
-                    console.log("on right", x, y);
                     result.onRight = true;
                     actor.posX = this.tiles[i].hitbox.x - (actor.localHitbox.width + actor.localHitbox.x);
                 }
                 else if (actor.globalHitbox.right > this.tiles[i].hitbox.right) {
-                    console.log("on left", x, y);
                     result.onLeft = true;
                     actor.posX = this.tiles[i].hitbox.right - actor.localHitbox.x;
                 }
@@ -118,12 +126,10 @@ var GameScene = /** @class */ (function (_super) {
                     continue;
                 }
                 if (actor.globalHitbox.y < this.tiles[i].hitbox.y) {
-                    console.log("on bottom", x, y);
                     result.onBottom = true;
                     actor.posY = this.tiles[i].hitbox.y - (actor.localHitbox.height + actor.localHitbox.y);
                 }
                 else if (actor.globalHitbox.bottom > this.tiles[i].hitbox.bottom) {
-                    console.log("on top", x, y);
                     result.onTop = true;
                     actor.posY = this.tiles[i].hitbox.bottom - actor.localHitbox.y;
                 }
@@ -233,6 +239,53 @@ var Tile = /** @class */ (function () {
     });
     return Tile;
 }());
+var KEY_GROUNDED = 0;
+var KEY_INAIR = 1;
+var KEY_GRABBED = 2;
+var Key = /** @class */ (function (_super) {
+    __extends(Key, _super);
+    function Key(player) {
+        var _this = _super.call(this) || this;
+        _this.gravity = 10;
+        _this.maxFallSpeed = 240;
+        _this.state = KEY_GROUNDED;
+        Key.instance = _this;
+        _this.player = player;
+        _this.sprite = GameScene.instance.add.sprite(48, 320 - 64, 'character', 8);
+        _this.sprite.setOrigin(0, 0);
+        _this.localHitbox = new Rectangle(0, 0, 8, 16);
+        return _this;
+    }
+    Key.prototype.Update = function () {
+        if (this.state == KEY_INAIR) {
+            if (this.speedY < this.maxFallSpeed) {
+                this.speedY += this.gravity;
+            }
+            else if (this.speedY > this.maxFallSpeed) {
+                this.speedY = this.maxFallSpeed;
+            }
+        }
+    };
+    Key.prototype.OnCollisionSolved = function (result) {
+        if (result.onBottom) {
+            this.speedY = 0;
+            this.state = KEY_GROUNDED;
+        }
+        if (result.onTop) {
+            this.speedY = 0;
+        }
+        for (var i = 0; i < result.tiles.length; i++) {
+            if (result.tiles[i] == undefined || !result.tiles[i].solid)
+                continue;
+            var hitbox = this.player.globalHitbox;
+            if (result.tiles[i].hitbox.y == hitbox.bottom && hitbox.right > result.tiles[i].hitbox.x && hitbox.x < result.tiles[i].hitbox.right) {
+                return;
+            }
+        }
+        this.state = KEY_INAIR;
+    };
+    return Key;
+}(Actor));
 /// <reference path="../actor.ts"/>
 var Player = /** @class */ (function (_super) {
     __extends(Player, _super);
@@ -241,11 +294,13 @@ var Player = /** @class */ (function (_super) {
         _this.scene = scene;
         _this.sprite = _this.scene.add.sprite(16, 320 - 48, 'character');
         _this.sprite.setOrigin(0, 0);
-        _this.localHitbox = new Rectangle(3, 1, 10, 14);
-        _this.inputDown = _this.scene.input.keyboard.addKey('S');
-        _this.inputLeft = _this.scene.input.keyboard.addKey('A');
-        _this.inputRight = _this.scene.input.keyboard.addKey('D');
-        _this.inputJump = _this.scene.input.keyboard.addKey('W');
+        _this.localHitbox = new Rectangle(3, 1, 10, 15);
+        _this.inputUp = _this.scene.input.keyboard.addKey('up');
+        _this.inputDown = _this.scene.input.keyboard.addKey('down');
+        _this.inputLeft = _this.scene.input.keyboard.addKey('left');
+        _this.inputRight = _this.scene.input.keyboard.addKey('right');
+        _this.inputJump = _this.scene.input.keyboard.addKey('Z');
+        _this.inputHold = _this.scene.input.keyboard.addKey('X');
         _this.idleState = new IdleState(_this);
         _this.runState = new RunState(_this);
         _this.jumpState = new JumpState(_this);
@@ -253,15 +308,34 @@ var Player = /** @class */ (function (_super) {
         _this.ChangeState(_this.idleState);
         return _this;
     }
+    Object.defineProperty(Player.prototype, "holdsKey", {
+        get: function () { return this.key.state == KEY_GRABBED; },
+        enumerable: true,
+        configurable: true
+    });
     Player.prototype.ChangeState = function (state) {
         this.currentState = state;
         this.currentState.OnEnter();
     };
     Player.prototype.Update = function () {
         this.currentState.Update();
+        if (this.holdsKey) {
+            //this.key.posX = this.globalHitbox.right;
+            //this.key.posY = this.posY;
+        }
     };
     Player.prototype.OnCollisionSolved = function (result) {
         this.currentState.OnCollisionSolved(result);
+        if (!this.holdsKey && this.inputHold.isDown && this.key.globalHitbox.Intersects(this.globalHitbox)) {
+            this.key.state = KEY_GRABBED;
+        }
+        if (this.holdsKey) {
+            this.key.posX = this.globalHitbox.right;
+            this.key.posY = this.posY;
+            if (this.inputHold.isUp) {
+                this.key.state = KEY_INAIR;
+            }
+        }
     };
     Player.prototype.UpdateMoveControls = function () {
         if (this.inputLeft.isDown) {
@@ -366,7 +440,7 @@ var GroundedState = /** @class */ (function (_super) {
     };
     GroundedState.prototype.OnCollisionSolved = function (result) {
         for (var i = 0; i < result.tiles.length; i++) {
-            if (!result.tiles[i].solid)
+            if (result.tiles[i] == undefined || !result.tiles[i].solid)
                 continue;
             var hitbox = this.player.globalHitbox;
             if (result.tiles[i].hitbox.y == hitbox.bottom && hitbox.right > result.tiles[i].hitbox.x && hitbox.x < result.tiles[i].hitbox.right) {

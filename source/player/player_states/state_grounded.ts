@@ -24,7 +24,7 @@ class GroundedState extends BaseState
     {
         for (let i = 0; i < result.tiles.length; i++)
         {
-            if (!result.tiles[i].solid) continue;
+            if (result.tiles[i] == undefined || !result.tiles[i].solid) continue;
 
             let hitbox = this.player.globalHitbox;
 
