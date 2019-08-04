@@ -79,16 +79,22 @@ var GameScene = /** @class */ (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
         var _this = _super.call(this, { key: 'GameScene', active: true }) || this;
-        _this.levelOrder = [LEVEL06, LEVEL02, LEVEL03, LEVEL04, LEVEL05, LEVEL06];
+        _this.levelOrder = [LEVEL01, LEVEL02, LEVEL03, LEVEL04, LEVEL05, LEVEL06];
         _this.currentLevel = -1;
         _this.fruitsCollected = 0;
         _this.tiles = [];
+        _this.canReset = true;
         GameScene.instance = _this;
         return _this;
     }
     GameScene.prototype.preload = function () {
         this.load.spritesheet('character', 'assets/character.png', { frameWidth: 16, frameHeight: 16 });
         this.load.spritesheet('tilessheet', 'assets/tilessheet.png', { frameWidth: 16, frameHeight: 16 });
+        this.load.audio('jump', 'audio/player_jump.wav');
+        this.load.audio('reset', 'audio/reset.wav');
+        this.load.audio('key_use', 'audio/key_use.wav');
+        this.load.audio('apple', 'audio/apple_collect.wav');
+        this.load.audio('switch', 'audio/switch.wav');
     };
     GameScene.prototype.create = function () {
         this.inputReset = this.input.keyboard.addKey('R');
@@ -96,6 +102,8 @@ var GameScene = /** @class */ (function (_super) {
         this.player = new Player(this);
         this.key.player = this.player;
         this.fruit = new Fruit();
+        this.resetSound = this.sound.add('reset');
+        this.switchSound = this.sound.add('switch');
         this.nextLevel();
     };
     GameScene.prototype.nextLevel = function () {
@@ -105,8 +113,14 @@ var GameScene = /** @class */ (function (_super) {
         this.resetObjects();
     };
     GameScene.prototype.reset = function () {
+        if (GameScene.sfxOn)
+            this.resetSound.play();
         LevelLoader.reload();
         this.resetObjects();
+        this.canReset = false;
+        setTimeout(function () {
+            this.canReset = true;
+        }.bind(this), 500);
     };
     GameScene.prototype.resetObjects = function () {
         if (this.player.isHoldingKey)
@@ -146,7 +160,7 @@ var GameScene = /** @class */ (function (_super) {
         if (this.player.posX > 330) {
             this.nextLevel();
         }
-        else if (Phaser.Input.Keyboard.JustDown(this.inputReset)) {
+        else if (Phaser.Input.Keyboard.JustDown(this.inputReset) && this.canReset) {
             this.reset();
         }
     };
@@ -217,6 +231,7 @@ var GameScene = /** @class */ (function (_super) {
     };
     GameScene.prototype.draw = function () {
     };
+    GameScene.sfxOn = true;
     return GameScene;
 }(Phaser.Scene));
 /// <reference path="scenes/game_scene.ts"/>
@@ -440,8 +455,9 @@ var Tile = /** @class */ (function () {
         configurable: true
     });
     Tile.ToggleSwitch = function () {
+        if (GameScene.sfxOn)
+            GameScene.instance.switchSound.play();
         Tile.toggleStatus = !Tile.toggleStatus;
-        console.log("Toggle", Tile.toggleStatus);
         for (var i = 0; i < GameScene.instance.tiles.length; i++) {
             var tile = GameScene.instance.tiles[i];
             if (tile.tileType == TILETYPE_KEYBLOCK) {
@@ -640,6 +656,7 @@ var Fruit = /** @class */ (function () {
         this.grabFeedback = GameScene.instance.add.sprite(48, 320 - 64, 'character', 11);
         this.grabFeedback.setOrigin(0, 0);
         this.grabFeedback.setVisible(false);
+        this.collectSound = GameScene.instance.sound.add('apple');
     }
     Object.defineProperty(Fruit.prototype, "hitbox", {
         get: function () { return new Rectangle(this.posX + 2, this.originalPosY + 1, 12, 14); },
@@ -670,6 +687,8 @@ var Fruit = /** @class */ (function () {
         this.animTimer = 0;
         this.grabFeedback.setVisible(true);
         this.grabFeedback.setPosition(this.posX, this.posY - 12);
+        if (GameScene.sfxOn)
+            this.collectSound.play();
     };
     Fruit.prototype.Reset = function () {
         this.sprite.setVisible(true);
@@ -744,6 +763,7 @@ var Key = /** @class */ (function (_super) {
         _this.sprite.setOrigin(0, 0);
         _this.localHitbox = new Rectangle(0, 0, 8, 16);
         _this.disappearDust = new DisappearDust(0, 0);
+        _this.useSound = GameScene.instance.sound.add('key_use');
         return _this;
     }
     Key.prototype.Update = function () {
@@ -777,6 +797,8 @@ var Key = /** @class */ (function (_super) {
         this.disappearDust.position = new Phaser.Geom.Point(this.globalHitbox.centerX, this.globalHitbox.centerY);
         this.disappearDust.Play();
         this.SetActive(false);
+        if (GameScene.sfxOn)
+            this.useSound.play();
     };
     Key.prototype.OnCollisionSolved = function (result) {
         if (result.onBottom) {
@@ -1113,11 +1135,15 @@ var IdleState = /** @class */ (function (_super) {
 var JumpState = /** @class */ (function (_super) {
     __extends(JumpState, _super);
     function JumpState(player) {
-        return _super.call(this, player) || this;
+        var _this = _super.call(this, player) || this;
+        _this.snd = GameScene.instance.sound.add('jump');
+        return _this;
     }
     JumpState.prototype.OnEnter = function () {
         this.player.speedY = -this.player.jumpPower;
         this.player.sprite.setFrame(2);
+        if (GameScene.sfxOn)
+            this.snd.play();
     };
     JumpState.prototype.Update = function () {
         _super.prototype.Update.call(this);

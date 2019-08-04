@@ -20,6 +20,8 @@ class Fruit
 
     originalPosY: number;
 
+    collectSound: Phaser.Sound.BaseSound;
+
     constructor()
     {
         this.sprite = GameScene.instance.add.sprite(48, 320-64, 'character', this.curFrame);
@@ -28,6 +30,8 @@ class Fruit
         this.grabFeedback = GameScene.instance.add.sprite(48, 320-64, 'character', 11);
         this.grabFeedback.setOrigin(0, 0);
         this.grabFeedback.setVisible(false);
+
+        this.collectSound = GameScene.instance.sound.add('apple');
     }
 
     Grab()
@@ -38,6 +42,8 @@ class Fruit
         this.animTimer = 0;
         this.grabFeedback.setVisible(true);
         this.grabFeedback.setPosition(this.posX, this.posY - 12);
+
+        if (GameScene.sfxOn) this.collectSound.play();
     }
 
     Reset()

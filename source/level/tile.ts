@@ -58,6 +58,8 @@ class Tile
 
     public static ToggleSwitch()
     {
+        if (GameScene.sfxOn) GameScene.instance.switchSound.play();
+
         Tile.toggleStatus = !Tile.toggleStatus;
 
         for (let i = 0; i < GameScene.instance.tiles.length; i++)

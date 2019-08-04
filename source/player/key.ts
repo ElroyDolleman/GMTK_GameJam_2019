@@ -15,6 +15,8 @@ class Key extends Actor
 
     public disappearDust: DisappearDust;
 
+    useSound: Phaser.Sound.BaseSound;
+
     constructor()
     {
         super();
@@ -26,6 +28,8 @@ class Key extends Actor
         this.localHitbox = new Rectangle(0, 0, 8, 16);
 
         this.disappearDust = new DisappearDust(0,0);
+
+        this.useSound = GameScene.instance.sound.add('key_use');
     }
 
     Update()
@@ -73,6 +77,8 @@ class Key extends Actor
         this.disappearDust.Play();
 
         this.SetActive(false);
+
+        if (GameScene.sfxOn) this.useSound.play();
     }
 
     public OnCollisionSolved(result: CollisionResult)

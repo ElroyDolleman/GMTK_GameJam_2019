@@ -1,6 +1,8 @@
 class GameScene extends Phaser.Scene
 {
-    public levelOrder = [LEVEL06, LEVEL02, LEVEL03, LEVEL04, LEVEL05, LEVEL06];
+    public static sfxOn: boolean = true;
+
+    public levelOrder = [LEVEL01, LEVEL02, LEVEL03, LEVEL04, LEVEL05, LEVEL06];
     public currentLevel = -1;
 
     public fruitsCollected = 0;
@@ -21,6 +23,10 @@ class GameScene extends Phaser.Scene
 
     public tiles: Tile[] = [];
 
+    public switchSound: Phaser.Sound.BaseSound;
+    resetSound: Phaser.Sound.BaseSound;
+    canReset: boolean = true;
+
     constructor()
     {
         super({ key: 'GameScene', active: true});
@@ -32,6 +38,12 @@ class GameScene extends Phaser.Scene
     {
         this.load.spritesheet('character', 'assets/character.png', { frameWidth: 16, frameHeight: 16 });
         this.load.spritesheet('tilessheet', 'assets/tilessheet.png', { frameWidth: 16, frameHeight: 16 });
+
+        this.load.audio('jump', 'audio/player_jump.wav');
+        this.load.audio('reset', 'audio/reset.wav');
+        this.load.audio('key_use', 'audio/key_use.wav');
+        this.load.audio('apple', 'audio/apple_collect.wav');
+        this.load.audio('switch', 'audio/switch.wav');
     }
 
     create()
@@ -42,6 +54,9 @@ class GameScene extends Phaser.Scene
         this.player = new Player(this);
         this.key.player = this.player;
         this.fruit = new Fruit();
+
+        this.resetSound = this.sound.add('reset');
+        this.switchSound = this.sound.add('switch');
 
         this.nextLevel();
     }
@@ -59,8 +74,15 @@ class GameScene extends Phaser.Scene
 
     reset()
     {
+        if (GameScene.sfxOn) this.resetSound.play();
+
         LevelLoader.reload();
         this.resetObjects();
+
+        this.canReset = false;
+        setTimeout(function() {
+            this.canReset = true;
+        }.bind(this), 500);
     }
 
     resetObjects()
@@ -110,7 +132,7 @@ class GameScene extends Phaser.Scene
         {
             this.nextLevel();
         }
-        else if (Phaser.Input.Keyboard.JustDown(this.inputReset))
+        else if (Phaser.Input.Keyboard.JustDown(this.inputReset) && this.canReset)
         {
             this.reset();
         }

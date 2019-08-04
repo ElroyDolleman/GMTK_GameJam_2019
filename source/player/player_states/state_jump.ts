@@ -2,15 +2,21 @@
 
 class JumpState extends AirborneState
 {
+    snd: Phaser.Sound.BaseSound;
+
     constructor(player: Player)
     {
         super(player);
+
+        this.snd = GameScene.instance.sound.add('jump');
     }
 
     public OnEnter()
     {
         this.player.speedY = -this.player.jumpPower;
         this.player.sprite.setFrame(2);
+
+        if (GameScene.sfxOn) this.snd.play();
     }
 
     public Update()
