@@ -1,6 +1,6 @@
 class GameScene extends Phaser.Scene
 {
-    public levelOrder = [LEVEL01, LEVEL02, LEVEL03, LEVEL04, LEVEL05];
+    public levelOrder = [LEVEL06, LEVEL02, LEVEL03, LEVEL04, LEVEL05, LEVEL06];
     public currentLevel = -1;
 
     public fruitsCollected = 0;
@@ -68,7 +68,7 @@ class GameScene extends Phaser.Scene
         if (this.player.isHoldingKey) this.player.ReleaseKey();
 
         this.key.SetActive(true);
-        this.key.posX = this.keySpawn.x + 4;
+        this.key.posX = this.keySpawn.x + (this.currentLevel == 5 ? 0 : 4);
         this.key.posY = this.keySpawn.y - 0.1;
         this.key.sprite.flipX = false;
         this.key.sprite.setOrigin(0, 0);

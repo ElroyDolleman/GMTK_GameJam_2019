@@ -79,7 +79,7 @@ var GameScene = /** @class */ (function (_super) {
     __extends(GameScene, _super);
     function GameScene() {
         var _this = _super.call(this, { key: 'GameScene', active: true }) || this;
-        _this.levelOrder = [LEVEL01, LEVEL02, LEVEL03, LEVEL04, LEVEL05];
+        _this.levelOrder = [LEVEL06, LEVEL02, LEVEL03, LEVEL04, LEVEL05, LEVEL06];
         _this.currentLevel = -1;
         _this.fruitsCollected = 0;
         _this.tiles = [];
@@ -112,7 +112,7 @@ var GameScene = /** @class */ (function (_super) {
         if (this.player.isHoldingKey)
             this.player.ReleaseKey();
         this.key.SetActive(true);
-        this.key.posX = this.keySpawn.x + 4;
+        this.key.posX = this.keySpawn.x + (this.currentLevel == 5 ? 0 : 4);
         this.key.posY = this.keySpawn.y - 0.1;
         this.key.sprite.flipX = false;
         this.key.sprite.setOrigin(0, 0);
@@ -305,6 +305,7 @@ var LEVEL02 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 1
 var LEVEL03 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 18, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1, 2, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 7, 0, 0, 27, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 2, 3, 14, 14, 1, 2, 3, 0, 0, 0, 0, 0, 20, 0, 0, 21, 0, 0, 29, 1, 2, 10, 11, 14, 14, 17, 18, 19, 0, 1, 3, 0, 0, 28, 0, 0, 26, 0, 0, 1, 13, 10, 10, 11, 14, 14, 0, 6, 0, 0, 9, 11, 0, 0, 0, 0, 0, 29, 1, 2, 13, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 13, 12, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LEVEL04 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 18, 18, 18, 18, 10, 10, 11, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 7, 0, 30, 0, 0, 14, 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 2, 2, 3, 0, 14, 6, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31, 9, 10, 10, 10, 12, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 14, 0, 31, 0, 0, 0, 27, 0, 9, 10, 10, 10, 10, 10, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LEVEL05 = [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 14, 14, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 30, 14, 14, 0, 14, 14, 22, 0, 0, 0, 9, 10, 10, 11, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 9, 10, 10, 12, 3, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 13, 10, 10, 18, 19, 0, 0, 0, 31, 0, 27, 1, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 0, 0, 14, 14, 14, 14, 0, 0, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 14, 0, 0, 1, 2, 2, 3, 0, 0, 0, 0, 1, 2, 2, 2, 2, 3, 0, 0, 10, 11, 0, 14, 14, 17, 18, 18, 19, 0, 0, 0, 21, 17, 18, 18, 18, 18, 19, 0, 0, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 0, 0, 0, 0, 21, 0, 10, 11, 14, 14, 0, 0, 0, 0, 0, 22, 0, 0, 29, 0, 0, 0, 0, 0, 0, 26, 1, 10, 11, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 31, 0, 29, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 31, 0, 0, 0, 1, 2, 2, 2, 2, 2, 13, 10, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+var LEVEL06 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 4, 18, 5, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 6, 9, 10, 10, 10, 10, 11, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 19, 38, 17, 5, 10, 10, 10, 12, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 0, 0, 15, 9, 10, 18, 18, 18, 5, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 14, 9, 10, 0, 0, 0, 9, 12, 3, 0, 0, 0, 1, 3, 0, 0, 0, 38, 0, 0, 0, 0, 9, 10, 0, 0, 0, 9, 10, 11, 0, 0, 0, 9, 11, 0, 0, 0, 0, 38, 0, 0, 0, 9, 10, 0, 0, 0, 17, 18, 19, 0, 0, 1, 13, 11, 8, 0, 0, 0, 0, 38, 1, 2, 13, 10, 7, 0, 0, 15, 0, 27, 0, 0, 17, 18, 19, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 2, 2, 2, 2, 2, 3, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 17, 18, 18, 18, 10, 10, 10, 10, 10, 11, 0, 15, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 20, 22, 0, 10, 10, 10, 10, 10, 12, 2, 2, 2, 3, 0, 0, 0, 0, 0, 27, 27, 27, 28, 30, 0, 10, 10, 10, 10, 10, 10, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LevelLoader = /** @class */ (function () {
     function LevelLoader() {
     }
@@ -345,6 +346,20 @@ var LevelLoader = /** @class */ (function () {
                 case 14:
                     tileType = TILETYPE_SEMISOLID;
                     break;
+                case 15:
+                case 16:
+                    tileType = TILETYPE_SWITCH;
+                    break;
+                case 24:
+                case 32:
+                case 37:
+                    tileType = TILETYPE_SWITCH_BLOCK_TRANSLUCENT;
+                    break;
+                case 38:
+                case 39:
+                case 40:
+                    tileType = TILETYPE_SWITCH_BLOCK_SOLID;
+                    break;
                 default:
                     if (array[i] > 0) {
                         tileType = TILETYPE_SOLID;
@@ -374,6 +389,9 @@ var TILETYPE_SOLID = 1;
 var TILETYPE_KEYBLOCK = 2;
 var TILETYPE_SEMISOLID = 3;
 var TILETYPE_TRANSLUCENT_KEYBLOCK = 4;
+var TILETYPE_SWITCH = 5;
+var TILETYPE_SWITCH_BLOCK_SOLID = 6;
+var TILETYPE_SWITCH_BLOCK_TRANSLUCENT = 7;
 var Tile = /** @class */ (function () {
     function Tile(hitbox, tileType, frame) {
         this.connections = [];
@@ -412,7 +430,7 @@ var Tile = /** @class */ (function () {
         }
     }
     Object.defineProperty(Tile.prototype, "solid", {
-        get: function () { return this.tileType == TILETYPE_SOLID || this.tileType == TILETYPE_KEYBLOCK; },
+        get: function () { return this.tileType == TILETYPE_SOLID || this.tileType == TILETYPE_KEYBLOCK || this.tileType == TILETYPE_SWITCH_BLOCK_SOLID; },
         enumerable: true,
         configurable: true
     });
@@ -421,6 +439,56 @@ var Tile = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Tile.ToggleSwitch = function () {
+        Tile.toggleStatus = !Tile.toggleStatus;
+        console.log("Toggle", Tile.toggleStatus);
+        for (var i = 0; i < GameScene.instance.tiles.length; i++) {
+            var tile = GameScene.instance.tiles[i];
+            if (tile.tileType == TILETYPE_KEYBLOCK) {
+                if (tile.frame == 19)
+                    tile.frame = 21;
+                else if (tile.frame == 27)
+                    tile.frame = 29;
+                else if (tile.frame == 26)
+                    tile.frame = 30;
+                tile.sprite.setFrame(tile.frame);
+                tile.tileType = TILETYPE_TRANSLUCENT_KEYBLOCK;
+            }
+            else if (tile.tileType == TILETYPE_TRANSLUCENT_KEYBLOCK) {
+                if (tile.frame == 21)
+                    tile.frame = 19;
+                else if (tile.frame == 29)
+                    tile.frame = 27;
+                else if (tile.frame == 30)
+                    tile.frame = 26;
+                tile.sprite.setFrame(tile.frame);
+                tile.tileType = TILETYPE_KEYBLOCK;
+            }
+            else if (tile.tileType == TILETYPE_SWITCH_BLOCK_TRANSLUCENT) {
+                if (tile.frame == 23)
+                    tile.frame = 39;
+                else if (tile.frame == 31)
+                    tile.frame = 38;
+                else if (tile.frame == 36)
+                    tile.frame = 37;
+                tile.sprite.setFrame(tile.frame);
+                tile.tileType = TILETYPE_SWITCH_BLOCK_SOLID;
+            }
+            else if (tile.tileType == TILETYPE_SWITCH_BLOCK_SOLID) {
+                if (tile.frame == 39)
+                    tile.frame = 23;
+                else if (tile.frame == 38)
+                    tile.frame = 31;
+                else if (tile.frame == 37)
+                    tile.frame = 36;
+                tile.sprite.setFrame(tile.frame);
+                tile.tileType = TILETYPE_SWITCH_BLOCK_TRANSLUCENT;
+            }
+            else if (tile.tileType == TILETYPE_SWITCH) {
+                tile.sprite.flipX = Tile.toggleStatus;
+            }
+        }
+    };
     Tile.prototype.Unlock = function () {
         if (this.tileType == TILETYPE_KEYBLOCK) {
             this.tileType = TILETYPE_EMPTY;
@@ -450,6 +518,7 @@ var Tile = /** @class */ (function () {
             }
         }
     };
+    Tile.toggleStatus = false;
     return Tile;
 }());
 var ParticleSystem = /** @class */ (function () {
@@ -783,6 +852,20 @@ var Player = /** @class */ (function (_super) {
     };
     Player.prototype.OnCollisionSolved = function (result) {
         this.currentState.OnCollisionSolved(result);
+        if (this.currentSwitch != undefined) {
+            if (!this.currentSwitch.hitbox.Intersects(this.globalHitbox)) {
+                this.currentSwitch = undefined;
+            }
+        }
+        else {
+            for (var i = 0; i < result.tiles.length; i++) {
+                if (result.tiles[i] != undefined && result.tiles[i].hitbox.Intersects(this.globalHitbox) && result.tiles[i].tileType == TILETYPE_SWITCH) {
+                    this.currentSwitch = result.tiles[i];
+                    Tile.ToggleSwitch();
+                    break;
+                }
+            }
+        }
         if (this.speedXDir < 0) {
             this.sprite.flipX = true;
         }

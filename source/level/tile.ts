@@ -3,16 +3,21 @@ const TILETYPE_SOLID = 1;
 const TILETYPE_KEYBLOCK = 2;
 const TILETYPE_SEMISOLID = 3;
 const TILETYPE_TRANSLUCENT_KEYBLOCK = 4;
+const TILETYPE_SWITCH = 5;
+const TILETYPE_SWITCH_BLOCK_SOLID = 6;
+const TILETYPE_SWITCH_BLOCK_TRANSLUCENT = 7;
 
 class Tile
 {
+    public static toggleStatus: boolean = false;
+
     public hitbox: Rectangle;
     public tileType: number;
     public sprite: Phaser.GameObjects.Sprite;
 
     public connections: Phaser.Geom.Point[] = [];
 
-    public get solid(): boolean { return this.tileType == TILETYPE_SOLID || this.tileType == TILETYPE_KEYBLOCK; }
+    public get solid(): boolean { return this.tileType == TILETYPE_SOLID || this.tileType == TILETYPE_KEYBLOCK || this.tileType == TILETYPE_SWITCH_BLOCK_SOLID; }
     public get semisolid(): boolean { return this.tileType == TILETYPE_SEMISOLID; }
 
     frame: number;
@@ -47,6 +52,57 @@ class Tile
             {
                 case 21: this.connections.push(new Phaser.Geom.Point(hitbox.x / 16, hitbox.y / 16 + 1)); break;
                 case 29: this.connections.push(new Phaser.Geom.Point(hitbox.x / 16, hitbox.y / 16 - 1)); break;
+            }
+        }
+    }
+
+    public static ToggleSwitch()
+    {
+        Tile.toggleStatus = !Tile.toggleStatus;
+
+        for (let i = 0; i < GameScene.instance.tiles.length; i++)
+        {
+            let tile = GameScene.instance.tiles[i];
+
+            if (tile.tileType == TILETYPE_KEYBLOCK)
+            {
+                if (tile.frame == 19) tile.frame = 21;
+                else if (tile.frame == 27) tile.frame = 29;
+                else if (tile.frame == 26) tile.frame = 30;
+
+                tile.sprite.setFrame(tile.frame);
+                tile.tileType = TILETYPE_TRANSLUCENT_KEYBLOCK;
+            }
+            else if (tile.tileType == TILETYPE_TRANSLUCENT_KEYBLOCK)
+            {
+                if (tile.frame == 21) tile.frame = 19;
+                else if (tile.frame == 29) tile.frame = 27;
+                else if (tile.frame == 30) tile.frame = 26;
+
+                tile.sprite.setFrame(tile.frame);
+                tile.tileType = TILETYPE_KEYBLOCK;
+            }
+            else if (tile.tileType == TILETYPE_SWITCH_BLOCK_TRANSLUCENT)
+            {
+                if (tile.frame == 23) tile.frame = 39;
+                else if (tile.frame == 31) tile.frame = 38;
+                else if (tile.frame == 36) tile.frame = 37;
+
+                tile.sprite.setFrame(tile.frame);
+                tile.tileType = TILETYPE_SWITCH_BLOCK_SOLID;
+            }
+            else if (tile.tileType == TILETYPE_SWITCH_BLOCK_SOLID)
+            {
+                if (tile.frame == 39) tile.frame = 23;
+                else if (tile.frame == 38) tile.frame = 31;
+                else if (tile.frame == 37) tile.frame = 36;
+
+                tile.sprite.setFrame(tile.frame);
+                tile.tileType = TILETYPE_SWITCH_BLOCK_TRANSLUCENT;
+            }
+            else if (tile.tileType == TILETYPE_SWITCH)
+            {
+                tile.sprite.flipX = Tile.toggleStatus;
             }
         }
     }

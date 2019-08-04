@@ -43,6 +43,8 @@ class Player extends Actor
 
     public landingDust: LandingDust;
 
+    public currentSwitch: Tile;
+
     constructor(scene: Phaser.Scene)
     {
         super();
@@ -89,6 +91,25 @@ class Player extends Actor
     public OnCollisionSolved(result: CollisionResult)
     {
         this.currentState.OnCollisionSolved(result);
+
+        if (this.currentSwitch != undefined)
+        {
+            if (!this.currentSwitch.hitbox.Intersects(this.globalHitbox)) {
+                this.currentSwitch = undefined;
+            }
+        }
+        else
+        {
+            for (let i = 0; i < result.tiles.length; i++) 
+            {
+                if (result.tiles[i] != undefined && result.tiles[i].hitbox.Intersects(this.globalHitbox) && result.tiles[i].tileType == TILETYPE_SWITCH) 
+                {
+                    this.currentSwitch = result.tiles[i];
+                    Tile.ToggleSwitch();
+                    break;
+                }
+            }
+        }
 
         if (this.speedXDir < 0)
         {
