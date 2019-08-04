@@ -72,13 +72,13 @@ class GameScene extends Phaser.Scene
         this.key.posY = this.keySpawn.y - 0.1;
         this.key.sprite.flipX = false;
         this.key.sprite.setOrigin(0, 0);
+        this.key.disappearDust.Clear();
 
-        if (!this.fruit.active)
-        {
-            this.fruit.active = true;
+        this.fruit.Reset();
+        if (!this.fruit.active) {
             this.fruitsCollected--;
         }
-        this.fruit.posX = this.fruitSpawn.x + (this.currentLevel == 4 ? 8 : 0);
+        this.fruit.posX = this.fruitSpawn.x + (this.currentLevel == 4 ? 7 : 0);
         this.fruit.posY = this.fruitSpawn.y - 8;
 
         this.player.posX = this.playerSpawn.x;
@@ -92,17 +92,19 @@ class GameScene extends Phaser.Scene
     update()
     {
         if (this.player.active) this.player.Update();
-        if (this.key.active) this.key.Update();
 
+        this.key.Update();
         this.prevPlayerHitbox = this.player.globalHitbox;
 
         this.moveActor(this.player);
         this.moveActor(this.key, this.key.state != KEY_GRABBED);
 
         if (this.player.posX < 0) this.player.posX = 0;
-        if (this.key.posX < 0) this.key.posX = 0;
+        if (this.key.posX < 2 && !this.player.isHoldingKey) {
+            this.key.posX = 2;
+        }
 
-        if (this.fruit.active) this.fruit.Update();
+        this.fruit.Update();
 
         if (this.player.posX > 330)
         {

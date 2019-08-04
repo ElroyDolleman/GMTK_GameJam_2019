@@ -13,6 +13,8 @@ class Key extends Actor
     
     public player: Player;
 
+    public disappearDust: DisappearDust;
+
     constructor()
     {
         super();
@@ -22,10 +24,18 @@ class Key extends Actor
         this.sprite.setOrigin(0, 0);
 
         this.localHitbox = new Rectangle(0, 0, 8, 16);
+
+        this.disappearDust = new DisappearDust(0,0);
     }
 
     Update()
     {
+        if (!this.active)
+        {
+            this.disappearDust.Update();
+            return;
+        }
+
         if (this.state == KEY_INAIR)
         {
             if (this.speedY < this.maxFallSpeed)
@@ -59,6 +69,9 @@ class Key extends Actor
 
     public Used()
     {
+        this.disappearDust.position = new Phaser.Geom.Point(this.globalHitbox.centerX, this.globalHitbox.centerY);
+        this.disappearDust.Play();
+
         this.SetActive(false);
     }
 

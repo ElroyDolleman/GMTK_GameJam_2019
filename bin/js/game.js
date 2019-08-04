@@ -116,11 +116,12 @@ var GameScene = /** @class */ (function (_super) {
         this.key.posY = this.keySpawn.y - 0.1;
         this.key.sprite.flipX = false;
         this.key.sprite.setOrigin(0, 0);
+        this.key.disappearDust.Clear();
+        this.fruit.Reset();
         if (!this.fruit.active) {
-            this.fruit.active = true;
             this.fruitsCollected--;
         }
-        this.fruit.posX = this.fruitSpawn.x + (this.currentLevel == 4 ? 8 : 0);
+        this.fruit.posX = this.fruitSpawn.x + (this.currentLevel == 4 ? 7 : 0);
         this.fruit.posY = this.fruitSpawn.y - 8;
         this.player.posX = this.playerSpawn.x;
         this.player.posY = this.playerSpawn.y;
@@ -132,17 +133,16 @@ var GameScene = /** @class */ (function (_super) {
     GameScene.prototype.update = function () {
         if (this.player.active)
             this.player.Update();
-        if (this.key.active)
-            this.key.Update();
+        this.key.Update();
         this.prevPlayerHitbox = this.player.globalHitbox;
         this.moveActor(this.player);
         this.moveActor(this.key, this.key.state != KEY_GRABBED);
         if (this.player.posX < 0)
             this.player.posX = 0;
-        if (this.key.posX < 0)
-            this.key.posX = 0;
-        if (this.fruit.active)
-            this.fruit.Update();
+        if (this.key.posX < 2 && !this.player.isHoldingKey) {
+            this.key.posX = 2;
+        }
+        this.fruit.Update();
         if (this.player.posX > 330) {
             this.nextLevel();
         }
@@ -226,7 +226,7 @@ var config = {
     height: 320,
     scaleMode: 3,
     pixelArt: true,
-    backgroundColor: '#e9f4fc',
+    backgroundColor: '#afb8cb',
     parent: 'GMTK Game Jam 2019',
     title: "GMTK Game Jam 2019",
     version: "0.0.1",
@@ -234,6 +234,17 @@ var config = {
     scene: [GameScene],
 };
 var game = new Phaser.Game(config);
+var RNG = /** @class */ (function () {
+    function RNG() {
+    }
+    RNG.Number = function (min, max) {
+        return min + Math.random() * (max - min);
+    };
+    RNG.Int = function (min, max) {
+        return Math.round(min + Math.random() * (max - min));
+    };
+    return RNG;
+}());
 var CollisionResult = /** @class */ (function () {
     function CollisionResult() {
         this.onTop = false;
@@ -265,6 +276,16 @@ var Rectangle = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(Rectangle.prototype, "centerX", {
+        get: function () { return this.x + this.width / 2; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Rectangle.prototype, "centerY", {
+        get: function () { return this.y + this.height / 2; },
+        enumerable: true,
+        configurable: true
+    });
     Rectangle.prototype.Intersects = function (other) {
         return other.x < this.right &&
             this.x < other.right &&
@@ -281,9 +302,9 @@ var Rectangle = /** @class */ (function () {
 }());
 var LEVEL01 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 4, 18, 18, 18, 18, 18, 5, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 8, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 11, 0, 0, 0, 0, 0, 17, 18, 11, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 9, 11, 0, 0, 0, 0, 0, 20, 0, 11, 0, 0, 0, 0, 1, 3, 0, 0, 9, 11, 0, 17, 19, 0, 0, 0, 0, 0, 28, 0, 11, 0, 7, 0, 0, 9, 11, 0, 0, 9, 11, 6, 0, 0, 0, 0, 1, 2, 2, 2, 2, 12, 2, 2, 2, 2, 13, 12, 2, 2, 13, 12, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LEVEL02 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 25, 7, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 26, 0, 2, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 29, 0, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 29, 0, 0, 1, 2, 10, 10, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
-var LEVEL03 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 18, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1, 2, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 7, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 2, 3, 14, 14, 1, 2, 3, 0, 27, 0, 0, 0, 20, 0, 0, 21, 0, 0, 29, 1, 2, 10, 11, 14, 14, 17, 18, 19, 0, 1, 3, 0, 0, 28, 0, 0, 26, 0, 0, 1, 13, 10, 10, 11, 14, 14, 0, 6, 0, 0, 9, 11, 0, 0, 0, 0, 0, 29, 1, 2, 13, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 13, 12, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+var LEVEL03 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 18, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1, 2, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 7, 0, 0, 27, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 2, 3, 14, 14, 1, 2, 3, 0, 0, 0, 0, 0, 20, 0, 0, 21, 0, 0, 29, 1, 2, 10, 11, 14, 14, 17, 18, 19, 0, 1, 3, 0, 0, 28, 0, 0, 26, 0, 0, 1, 13, 10, 10, 11, 14, 14, 0, 6, 0, 0, 9, 11, 0, 0, 0, 0, 0, 29, 1, 2, 13, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 13, 12, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LEVEL04 = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 4, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 5, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 18, 18, 18, 18, 18, 10, 10, 11, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 7, 0, 30, 0, 0, 14, 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 2, 2, 3, 0, 14, 6, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 31, 9, 10, 10, 10, 12, 2, 2, 2, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 10, 10, 10, 10, 10, 10, 11, 0, 0, 0, 14, 0, 31, 0, 0, 0, 27, 0, 9, 10, 10, 10, 10, 10, 10, 10, 10, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
-var LEVEL05 = [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 14, 14, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 30, 14, 14, 0, 14, 14, 22, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 9, 10, 10, 12, 3, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 13, 10, 10, 18, 19, 0, 0, 0, 31, 0, 27, 1, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 0, 0, 14, 14, 14, 14, 0, 0, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 14, 0, 0, 1, 2, 2, 3, 0, 0, 0, 0, 1, 2, 2, 2, 2, 3, 0, 0, 10, 11, 0, 14, 14, 17, 18, 18, 19, 0, 0, 0, 21, 17, 18, 18, 18, 18, 19, 0, 0, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 0, 0, 0, 0, 21, 0, 10, 11, 14, 14, 0, 0, 0, 0, 0, 22, 0, 0, 29, 0, 0, 0, 0, 0, 0, 26, 1, 10, 11, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 31, 0, 29, 9, 10, 11, 0, 0, 0, 0, 0, 0, 31, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 13, 10, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
+var LEVEL05 = [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 14, 14, 9, 10, 10, 11, 0, 0, 0, 0, 0, 0, 0, 30, 14, 14, 0, 14, 14, 22, 0, 0, 0, 9, 10, 10, 11, 14, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 9, 10, 10, 12, 3, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 13, 10, 10, 18, 19, 0, 0, 0, 31, 0, 27, 1, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 0, 0, 14, 14, 14, 14, 0, 0, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 14, 0, 0, 1, 2, 2, 3, 0, 0, 0, 0, 1, 2, 2, 2, 2, 3, 0, 0, 10, 11, 0, 14, 14, 17, 18, 18, 19, 0, 0, 0, 21, 17, 18, 18, 18, 18, 19, 0, 0, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26, 0, 0, 0, 0, 0, 0, 21, 0, 10, 11, 14, 14, 0, 0, 0, 0, 0, 22, 0, 0, 29, 0, 0, 0, 0, 0, 0, 26, 1, 10, 11, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 31, 0, 29, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 31, 0, 0, 0, 1, 2, 2, 2, 2, 2, 13, 10, 12, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 13, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
 var LevelLoader = /** @class */ (function () {
     function LevelLoader() {
     }
@@ -431,15 +452,128 @@ var Tile = /** @class */ (function () {
     };
     return Tile;
 }());
+var ParticleSystem = /** @class */ (function () {
+    function ParticleSystem(posX, posY) {
+        this.particles = [];
+        this.position = new Phaser.Geom.Point(posX, posY);
+    }
+    ParticleSystem.prototype.Play = function () {
+        this.timer = 0;
+        this.Emit();
+        if (this.duration > 0 && this.maxInterval != 0) {
+            setTimeout(this.Emit.bind(this), RNG.Number(this.minInterval, this.maxInterval));
+        }
+    };
+    ParticleSystem.prototype.Update = function () {
+        if (this.timer < this.duration) {
+            this.timer = Math.min(this.timer + (1 / 60), this.duration);
+        }
+        for (var i = 0; i < this.particles.length; i++) {
+            this.particles[i].Update();
+            if (this.particles[i].lifetime <= 0) {
+                this.particles[i].Destroy();
+                this.particles.splice(i, 1);
+                i--;
+            }
+        }
+    };
+    ParticleSystem.prototype.Emit = function () {
+        var spawnAmount = RNG.Int(this.minSpawn, this.maxSpawn);
+        for (var i = 0; i < spawnAmount; i++) {
+            var offsetX = RNG.Number(this.minOffset.x, this.maxOffset.x);
+            var offsetY = RNG.Number(this.minOffset.y, this.maxOffset.y);
+            var particle = new Particle(this.position.x + offsetX, this.position.y + offsetY);
+            particle.lifetime = RNG.Number(this.minLifeTime, this.maxLifeTime);
+            particle.speed = RNG.Number(this.minSpeed, this.maxSpeed);
+            particle.direction = RNG.Number(this.minDirection, this.maxDirection);
+            this.particles.push(particle);
+        }
+        if (this.timer < this.duration && this.maxInterval != 0) {
+            setTimeout(this.Emit.bind(this), RNG.Number(this.minInterval, this.maxInterval));
+        }
+    };
+    ParticleSystem.prototype.Clear = function () {
+        for (var i = 0; i < this.particles.length; i++) {
+            this.particles[i].Destroy();
+            this.particles.splice(i, 1);
+            i--;
+        }
+    };
+    return ParticleSystem;
+}());
+/// <reference path="particle_system.ts"/>
+var DisappearDust = /** @class */ (function (_super) {
+    __extends(DisappearDust, _super);
+    function DisappearDust(posX, posY) {
+        var _this = _super.call(this, posX, posY) || this;
+        _this.minOffset = new Phaser.Geom.Point(-8, -8);
+        _this.maxOffset = new Phaser.Geom.Point(8, 8);
+        _this.minSpeed = 10;
+        _this.maxSpeed = 12;
+        _this.minSpawn = 48;
+        _this.maxSpawn = 64;
+        _this.minLifeTime = 0.75;
+        _this.maxLifeTime = 1.25;
+        _this.minDirection = 0 * (Math.PI / 180);
+        _this.maxDirection = 360 * (Math.PI / 180);
+        _this.duration = 0;
+        return _this;
+    }
+    return DisappearDust;
+}(ParticleSystem));
+/// <reference path="particle_system.ts"/>
+var LandingDust = /** @class */ (function (_super) {
+    __extends(LandingDust, _super);
+    function LandingDust(posX, posY) {
+        var _this = _super.call(this, posX, posY) || this;
+        _this.minOffset = new Phaser.Geom.Point(-5, -4);
+        _this.maxOffset = new Phaser.Geom.Point(5, 0);
+        _this.minSpeed = 2.8;
+        _this.maxSpeed = 4;
+        _this.minSpawn = 16;
+        _this.maxSpawn = 32;
+        _this.minLifeTime = 0.75;
+        _this.maxLifeTime = 1;
+        _this.minDirection = 180 * (Math.PI / 180);
+        _this.maxDirection = 180 * (Math.PI / 180);
+        _this.duration = 0;
+        return _this;
+    }
+    return LandingDust;
+}(ParticleSystem));
+var Particle = /** @class */ (function () {
+    function Particle(positionX, positionY) {
+        this.position = new Phaser.Geom.Point(positionX, positionY);
+        this.graphic = GameScene.instance.add.graphics({ fillStyle: { color: 0xFFFFFF } });
+        this.graphic.fillPointShape(new Phaser.Geom.Point(0, 0), 1);
+    }
+    Particle.prototype.isDead = function () { return this.lifetime <= 0; };
+    Particle.prototype.Update = function () {
+        this.lifetime -= (1 / 60);
+        this.position.x += Math.sin(this.direction) * this.speed * (1 / 60);
+        this.position.y += Math.cos(this.direction) * this.speed * (1 / 60);
+        this.graphic.setPosition(this.position.x, this.position.y);
+    };
+    Particle.prototype.Destroy = function () {
+        this.graphic.destroy();
+    };
+    return Particle;
+}());
 var Fruit = /** @class */ (function () {
     function Fruit() {
+        this.active = true;
         this.animTimer = 0;
+        this.animMoveTimer = 0;
+        this.moveDir = 1;
         this.curFrame = 9;
         this.sprite = GameScene.instance.add.sprite(48, 320 - 64, 'character', this.curFrame);
         this.sprite.setOrigin(0, 0);
+        this.grabFeedback = GameScene.instance.add.sprite(48, 320 - 64, 'character', 11);
+        this.grabFeedback.setOrigin(0, 0);
+        this.grabFeedback.setVisible(false);
     }
     Object.defineProperty(Fruit.prototype, "hitbox", {
-        get: function () { return new Rectangle(this.posX + 2, this.posY + 1, 12, 14); },
+        get: function () { return new Rectangle(this.posX + 2, this.originalPosY + 1, 12, 14); },
         enumerable: true,
         configurable: true
     });
@@ -453,32 +587,76 @@ var Fruit = /** @class */ (function () {
     ;
     Object.defineProperty(Fruit.prototype, "posY", {
         get: function () { return this.sprite.y; },
-        set: function (y) { this.sprite.setY(y); },
+        set: function (y) { this.sprite.setY(y); this.originalPosY = y; this.animMoveTimer = 0.5; },
         enumerable: true,
         configurable: true
     });
     ;
     ;
     ;
-    Object.defineProperty(Fruit.prototype, "active", {
-        get: function () { return this.sprite.visible; },
-        set: function (a) { this.sprite.setVisible(a); },
-        enumerable: true,
-        configurable: true
-    });
-    ;
-    ;
+    Fruit.prototype.Grab = function () {
+        this.active = false;
+        this.curFrame = 12;
+        this.sprite.setFrame(12);
+        this.animTimer = 0;
+        this.grabFeedback.setVisible(true);
+        this.grabFeedback.setPosition(this.posX, this.posY - 12);
+    };
+    Fruit.prototype.Reset = function () {
+        this.sprite.setVisible(true);
+        this.active = true;
+        this.animTimer = 0;
+        this.grabFeedback.setVisible(false);
+        this.curFrame = 9;
+        this.sprite.setFrame(9);
+    };
     Fruit.prototype.Update = function () {
+        if (!this.active) {
+            if (this.grabFeedback.visible) {
+                if (this.grabFeedback.y < this.posY - 36) {
+                    this.grabFeedback.setVisible(false);
+                }
+                else {
+                    this.grabFeedback.setPosition(this.posX, this.grabFeedback.y - 24 * (1 / 60));
+                }
+            }
+            if (this.curFrame > 14)
+                return;
+            this.animTimer += (1 / 60);
+            if (this.animTimer > 0.1) {
+                this.animTimer -= 0.1;
+                this.curFrame++;
+                this.sprite.setFrame(this.curFrame);
+                if (this.curFrame > 14) {
+                    this.sprite.setVisible(false);
+                }
+            }
+            return;
+        }
         this.animTimer += (1 / 60);
-        if (this.animTimer >= 0.5) {
-            this.animTimer -= 0.5;
+        this.animMoveTimer += (1 / 61) * this.moveDir;
+        if (this.animTimer >= 0.4) {
+            this.animTimer -= 0.4;
             this.curFrame = this.curFrame == 9 ? 10 : 9;
             this.sprite.setFrame(this.curFrame);
         }
+        if (this.animMoveTimer >= 1 && this.moveDir == 1) {
+            this.moveDir = -1;
+            this.animMoveTimer = 1 - (this.animMoveTimer - 1);
+        }
+        else if (this.animMoveTimer <= 0 && this.moveDir == -1) {
+            this.moveDir = 1;
+            this.animMoveTimer = Math.abs(this.animMoveTimer);
+        }
+        var ease = this.EaseInOutCubic(this.animMoveTimer);
+        this.sprite.y = this.originalPosY - 1 + ease * 2;
         if (GameScene.instance.player.globalHitbox.Intersects(this.hitbox)) {
-            this.active = false;
+            this.Grab();
             GameScene.instance.fruitsCollected++;
         }
+    };
+    Fruit.prototype.EaseInOutCubic = function (t) {
+        return t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
     };
     return Fruit;
 }());
@@ -496,9 +674,14 @@ var Key = /** @class */ (function (_super) {
         _this.sprite = GameScene.instance.add.sprite(48, 320 - 64, 'character', 8);
         _this.sprite.setOrigin(0, 0);
         _this.localHitbox = new Rectangle(0, 0, 8, 16);
+        _this.disappearDust = new DisappearDust(0, 0);
         return _this;
     }
     Key.prototype.Update = function () {
+        if (!this.active) {
+            this.disappearDust.Update();
+            return;
+        }
         if (this.state == KEY_INAIR) {
             if (this.speedY < this.maxFallSpeed) {
                 this.speedY += this.gravity;
@@ -522,6 +705,8 @@ var Key = /** @class */ (function (_super) {
             this.Used();
     };
     Key.prototype.Used = function () {
+        this.disappearDust.position = new Phaser.Geom.Point(this.globalHitbox.centerX, this.globalHitbox.centerY);
+        this.disappearDust.Play();
         this.SetActive(false);
     };
     Key.prototype.OnCollisionSolved = function (result) {
@@ -575,6 +760,7 @@ var Player = /** @class */ (function (_super) {
         _this.inputRight = _this.scene.input.keyboard.addKey('right');
         _this.inputJump = _this.scene.input.keyboard.addKey('Space');
         _this.inputGrab = _this.scene.input.keyboard.addKey('Z');
+        _this.landingDust = new LandingDust(0, 0);
         _this.idleState = new IdleState(_this);
         _this.runState = new RunState(_this);
         _this.jumpState = new JumpState(_this);
@@ -593,10 +779,7 @@ var Player = /** @class */ (function (_super) {
     };
     Player.prototype.Update = function () {
         this.currentState.Update();
-        if (this.isHoldingKey) {
-            //this.key.posX = this.globalHitbox.right;
-            //this.key.posY = this.posY;
-        }
+        this.landingDust.Update();
     };
     Player.prototype.OnCollisionSolved = function (result) {
         this.currentState.OnCollisionSolved(result);
@@ -616,7 +799,7 @@ var Player = /** @class */ (function (_super) {
         if (!this.keyRegrabable) {
             this.keyRegrabable = this.inputGrab.isUp;
         }
-        if (!this.isHoldingKey && this.keyRegrabable && this.inputGrab.isDown && this.key.globalHitbox.IntersectsOrNextTo(this.globalHitbox)) {
+        if (!this.isHoldingKey && this.keyRegrabable && this.inputGrab.isDown && this.currentState != this.jumpState && this.key.globalHitbox.IntersectsOrNextTo(this.globalHitbox)) {
             this.GrabKey();
         }
         else if (this.isHoldingKey && this.inputGrab.isUp) {
@@ -726,6 +909,12 @@ var AirborneState = /** @class */ (function (_super) {
         }
     };
     AirborneState.prototype.Land = function () {
+        var speedRequired = !this.player.isHoldingKey ? this.player.speedY + 15 : this.player.speedY + 40;
+        if (speedRequired >= this.maxFallSpeed) {
+            this.player.landingDust.position.x = this.player.globalHitbox.centerX;
+            this.player.landingDust.position.y = this.player.globalHitbox.bottom;
+            this.player.landingDust.Play();
+        }
         this.player.speedY = 0;
         this.player.ChangeState(this.player.speedX == 0 ? this.player.idleState : this.player.runState);
     };

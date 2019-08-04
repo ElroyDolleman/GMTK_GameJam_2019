@@ -43,6 +43,14 @@ class AirborneState extends BaseState
 
     public Land()
     {
+        let speedRequired = !this.player.isHoldingKey ? this.player.speedY + 15 : this.player.speedY + 40;
+        if (speedRequired >= this.maxFallSpeed)
+        {
+            this.player.landingDust.position.x = this.player.globalHitbox.centerX;
+            this.player.landingDust.position.y = this.player.globalHitbox.bottom;
+            this.player.landingDust.Play();
+        }
+
         this.player.speedY = 0;
         this.player.ChangeState(this.player.speedX == 0 ? this.player.idleState : this.player.runState);
     }

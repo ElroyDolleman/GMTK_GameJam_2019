@@ -41,6 +41,8 @@ class Player extends Actor
     public hitboxWidth = 10;
     public hitboxX = 3;
 
+    public landingDust: LandingDust;
+
     constructor(scene: Phaser.Scene)
     {
         super();
@@ -61,6 +63,8 @@ class Player extends Actor
         this.inputJump = this.scene.input.keyboard.addKey('Space');
         this.inputGrab = this.scene.input.keyboard.addKey('Z');
 
+        this.landingDust = new LandingDust(0, 0);
+
         this.idleState = new IdleState(this);
         this.runState = new RunState(this);
         this.jumpState = new JumpState(this);
@@ -79,11 +83,7 @@ class Player extends Actor
     {
         this.currentState.Update();
 
-        if (this.isHoldingKey)
-        {
-            //this.key.posX = this.globalHitbox.right;
-            //this.key.posY = this.posY;
-        }
+        this.landingDust.Update();
     }
 
     public OnCollisionSolved(result: CollisionResult)
@@ -114,7 +114,7 @@ class Player extends Actor
             this.keyRegrabable = this.inputGrab.isUp;
         }
 
-        if (!this.isHoldingKey && this.keyRegrabable && this.inputGrab.isDown && this.key.globalHitbox.IntersectsOrNextTo(this.globalHitbox))
+        if (!this.isHoldingKey && this.keyRegrabable && this.inputGrab.isDown && this.currentState != this.jumpState && this.key.globalHitbox.IntersectsOrNextTo(this.globalHitbox))
         {
             this.GrabKey();
         }

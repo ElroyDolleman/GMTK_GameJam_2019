@@ -6,7 +6,7 @@ var config = {
     height: 320,
     scaleMode: 3,
     pixelArt: true,
-    backgroundColor: '#e9f4fc',
+    backgroundColor: '#afb8cb',
     parent: 'GMTK Game Jam 2019',
     title: "GMTK Game Jam 2019",
     version: "0.0.1",

@@ -2,6 +2,8 @@ class Rectangle
 {
     public get right(): number { return this.x + this.width; }
     public get bottom(): number { return this.y + this.height; }
+    public get centerX(): number { return this.x + this.width / 2; }
+    public get centerY(): number { return this.y + this.height / 2; }
 
     public x: number;
     public y: number;
