@@ -14,6 +14,11 @@ class JumpState extends AirborneState
     public OnEnter()
     {
         this.player.speedY = -this.player.jumpPower;
+
+        if (this.player.key.secret && this.player.isHoldingKey) {
+            this.player.speedY = -480;
+        }
+
         this.player.sprite.setFrame(2);
 
         if (GameScene.sfxOn) this.snd.play();

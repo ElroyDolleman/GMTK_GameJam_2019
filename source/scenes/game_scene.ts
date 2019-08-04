@@ -2,7 +2,7 @@ class GameScene extends Phaser.Scene
 {
     public static sfxOn: boolean = true;
 
-    public levelOrder = [LEVEL01, LEVEL02, LEVEL03, LEVEL04, LEVEL05, LEVEL06];
+    public levelOrder = [LEVEL01, LEVEL02, LEVEL03, LEVEL04, LEVEL05, LEVEL06, LEVEL_FINAL];
     public currentLevel = -1;
 
     public fruitsCollected = 0;
@@ -26,6 +26,8 @@ class GameScene extends Phaser.Scene
     public switchSound: Phaser.Sound.BaseSound;
     resetSound: Phaser.Sound.BaseSound;
     canReset: boolean = true;
+    showTut: boolean = false;
+    roomTime: number = 0;
 
     constructor()
     {
@@ -70,6 +72,8 @@ class GameScene extends Phaser.Scene
         this.tiles = LevelLoader.load(this.levelOrder[this.currentLevel]);
         
         this.resetObjects();
+
+        this.roomTime = 0;
     }
 
     reset()
@@ -78,6 +82,23 @@ class GameScene extends Phaser.Scene
 
         LevelLoader.reload();
         this.resetObjects();
+
+        this.roomTime = 0;
+
+        if (!this.fruit.active) {
+            this.fruitsCollected--;
+        }
+
+        if (this.currentLevel == 1 && !this.key.active && this.showTut)
+        {
+            for (let i = 0; i < this.tiles.length; i++)
+            {
+                if (this.tiles[i].frame > 40) {
+                    this.tiles[i].sprite.setVisible(false);
+                }
+            }
+            this.showTut = false;
+        }
 
         this.canReset = false;
         setTimeout(function() {
@@ -96,12 +117,16 @@ class GameScene extends Phaser.Scene
         this.key.sprite.setOrigin(0, 0);
         this.key.disappearDust.Clear();
 
-        this.fruit.Reset();
-        if (!this.fruit.active) {
-            this.fruitsCollected--;
+        if (GameScene.instance.currentLevel >= GameScene.instance.levelOrder.length - 1)
+        {
+            this.fruit.sprite.setVisible(false);
         }
-        this.fruit.posX = this.fruitSpawn.x + (this.currentLevel == 4 ? 7 : 0);
-        this.fruit.posY = this.fruitSpawn.y - 8;
+        else
+        {
+            this.fruit.Reset();
+            this.fruit.posX = this.fruitSpawn.x + (this.currentLevel == 4 ? 7 : 0);
+            this.fruit.posY = this.fruitSpawn.y - 8;
+        }
 
         this.player.posX = this.playerSpawn.x;
         this.player.posY = this.playerSpawn.y;
@@ -111,8 +136,57 @@ class GameScene extends Phaser.Scene
         this.player.ChangeState(this.player.idleState);
     }
 
+    showReset()
+    {
+        if (this.currentLevel > 2) return;
+
+        this.showTut = true;
+
+        setTimeout(function() {
+            if ((this.currentLevel == 1 || this.currentLevel == 2) && (!this.key.active || this.roomTime > 35) && this.showTut) 
+            {
+                for (let i = 0; i < this.tiles.length; i++)
+                {
+                    if (this.tiles[i].frame > 40) {
+                        this.tiles[i].sprite.setVisible(true);
+                    }
+                }
+            }
+        }.bind(this), 8000);
+    }
+
     update()
     {
+        if (this.player.posY < -48) {
+            return;
+        }
+
+        if (this.currentLevel == 0)
+        {
+            let gridX = Math.floor((this.player.posX + 2) / 16);
+            let gridY = Math.floor((this.player.posY + 2) / 16);
+
+            if ((gridX == 10 || gridX == 11) && gridY == 14 && !this.player.isHoldingKey)
+            {
+                this.tiles[11 % 21 + 13 * 21].sprite.setVisible(true);
+            }
+            else
+            {
+                this.tiles[11 % 21 + 13 * 21].sprite.setVisible(false);
+            }
+        }
+        else if ((this.currentLevel == 1 && !this.key.active && !this.showTut) ||
+                (this.currentLevel == 2 && !this.key.active && this.key.posY < 260 && !this.showTut))
+        {
+            this.showReset();
+        }
+
+        this.roomTime += 1/60;
+        if (this.roomTime > 35 && !this.showTut && this.currentLevel > 0)
+        {
+            this.showReset();
+        }
+
         if (this.player.active) this.player.Update();
 
         this.key.Update();
@@ -132,9 +206,10 @@ class GameScene extends Phaser.Scene
         {
             this.nextLevel();
         }
-        else if (Phaser.Input.Keyboard.JustDown(this.inputReset) && this.canReset)
+        else if (Phaser.Input.Keyboard.JustDown(this.inputReset) && this.canReset && this.currentLevel < this.levelOrder.length - 1)
         {
             this.reset();
+            //this.player.posX = 333;
         }
     }
 

@@ -6,6 +6,7 @@ const TILETYPE_TRANSLUCENT_KEYBLOCK = 4;
 const TILETYPE_SWITCH = 5;
 const TILETYPE_SWITCH_BLOCK_SOLID = 6;
 const TILETYPE_SWITCH_BLOCK_TRANSLUCENT = 7;
+const TILETYPE_SECRET_HEARTH = 8;
 
 class Tile
 {
@@ -28,10 +29,15 @@ class Tile
         this.tileType = tileType;
         this.frame = frame;
 
-        if (tileType > 0)
+        if (frame >= 0)
         {
             this.sprite = GameScene.instance.add.sprite(hitbox.x, hitbox.y, 'tilessheet', frame);
             this.sprite.setOrigin(0, 0);
+
+            if (GameScene.instance.currentLevel > 0 && GameScene.instance.currentLevel < GameScene.instance.levelOrder.length - 1 && frame > 40)
+            {
+                this.sprite.setVisible(false);
+            }
         }
 
         if (tileType == TILETYPE_KEYBLOCK)

@@ -1,6 +1,7 @@
 const KEY_GROUNDED = 0;
 const KEY_INAIR = 1;
 const KEY_GRABBED = 2;
+const KEY_NOT_SO_KEY_ANYMORE = 3;
 
 class Key extends Actor
 {
@@ -16,6 +17,8 @@ class Key extends Actor
     public disappearDust: DisappearDust;
 
     useSound: Phaser.Sound.BaseSound;
+
+    secret: boolean = false;
 
     constructor()
     {
@@ -65,6 +68,20 @@ class Key extends Actor
             {
                 tiles[i].Unlock();
                 used = true;
+            }
+            else if (tiles[i].tileType == TILETYPE_SECRET_HEARTH && tiles[i].hitbox.Intersects(this.nextHitbox))
+            {
+                tiles[i].sprite.setVisible(false);
+                tiles[i].tileType = TILETYPE_EMPTY;
+
+                this.state = KEY_NOT_SO_KEY_ANYMORE;
+                this.secret = true;
+                this.sprite.setFrame(15);
+
+                this.disappearDust.position = new Phaser.Geom.Point(this.globalHitbox.centerX, this.globalHitbox.centerY);
+                this.disappearDust.Play();
+
+                if (GameScene.sfxOn) this.useSound.play();
             }
         }
 
